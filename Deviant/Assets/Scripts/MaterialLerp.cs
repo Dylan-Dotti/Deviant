@@ -21,7 +21,6 @@ public class MaterialLerp : MonoBehaviour
 
     private void Start()
     {
-        //LerpDuration = 3.0f;
         startTime = Time.time;
         rend = GetComponent<Renderer>();
         startMaterial = new Material(rend.material);
@@ -30,7 +29,6 @@ public class MaterialLerp : MonoBehaviour
     private void Update()
     {
         float lerp = Mathf.PingPong(Time.time - startTime, LerpDuration) / LerpDuration;
-        //float lerp = Mathf.Sin(Time.time / lerpDuration);
         rend.material.Lerp(startMaterial, lerpMaterial, lerp);
     }
 }

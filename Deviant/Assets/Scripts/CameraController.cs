@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public bool FollowPlayer { get; set; }
-
     [SerializeField]
     private Transform playerTransform;
 
 	void Update ()
     {
         transform.position = new Vector3(playerTransform.position.x,
-            playerTransform.position.y, transform.position.z);
+            transform.position.y, playerTransform.position.z);
 	}
 }
