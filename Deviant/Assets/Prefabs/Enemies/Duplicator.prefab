@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3092975779684764671}
   m_Layer: 0
   m_Name: Sphere (1)
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 3092975779916420965}
   m_Layer: 0
   m_Name: Cylinder (2)
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -117,7 +117,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3092975779916420968}
   m_LocalRotation: {x: 0.61237246, y: 0.3535534, z: -0.3535534, w: 0.61237246}
-  m_LocalPosition: {x: 0.25, y: 0.15, z: -0.433}
+  m_LocalPosition: {x: 0.25, y: 0.1, z: -0.433}
   m_LocalScale: {x: 0.25000006, y: 1.0000005, z: 0.6600002}
   m_Children: []
   m_Father: {fileID: 3092975780457098101}
@@ -182,7 +182,7 @@ GameObject:
   - component: {fileID: 3092975780213043673}
   m_Layer: 0
   m_Name: Sphere (2)
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -272,9 +272,12 @@ GameObject:
   - component: {fileID: 5672593777250954615}
   - component: {fileID: 989180696}
   - component: {fileID: 901128454139032941}
+  - component: {fileID: 1204267116}
+  - component: {fileID: 1204267117}
+  - component: {fileID: 833943070}
   m_Layer: 0
   m_Name: Duplicator
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -340,8 +343,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52517692a2088e546993902384c26467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minTorque: 1
-  maxTorque: 5
+  torqueRange:
+    min: 2
+    max: 5
 --- !u!114 &901128454139032941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,6 +359,57 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   duplicatorPrefab: {fileID: 901128454139032941}
+--- !u!114 &1204267116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3092975780457098106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0336e23aba35ac4193ae1f9f83dbaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 10
+  currentHealth: 0
+  healthBar: {fileID: 0}
+--- !u!195 &1204267117
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3092975780457098106}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &833943070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3092975780457098106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a310c9b4c1b9904d869c49364223683, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageAmount: 5
+  damageInterval: 1
 --- !u!1 &3092975780480702875
 GameObject:
   m_ObjectHideFlags: 0
@@ -368,7 +423,7 @@ GameObject:
   - component: {fileID: 3092975780480702868}
   m_Layer: 0
   m_Name: Cylinder (1)
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -381,7 +436,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3092975780480702875}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.5, y: 0.15, z: 0}
+  m_LocalPosition: {x: -0.5, y: 0.1, z: 0}
   m_LocalScale: {x: 0.25000006, y: 1.0000005, z: 0.6600002}
   m_Children: []
   m_Father: {fileID: 3092975780457098101}
@@ -446,7 +501,7 @@ GameObject:
   - component: {fileID: 3092975781149709230}
   m_Layer: 0
   m_Name: Sphere
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -536,7 +591,7 @@ GameObject:
   - component: {fileID: 3092975781225968669}
   m_Layer: 0
   m_Name: Cylinder
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -549,7 +604,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3092975781225968640}
   m_LocalRotation: {x: 0.61237246, y: -0.3535534, z: 0.3535534, w: 0.61237246}
-  m_LocalPosition: {x: 0.25, y: 0.15, z: 0.433}
+  m_LocalPosition: {x: 0.25, y: 0.1, z: 0.433}
   m_LocalScale: {x: 0.25, y: 1, z: 0.66}
   m_Children: []
   m_Father: {fileID: 3092975780457098101}

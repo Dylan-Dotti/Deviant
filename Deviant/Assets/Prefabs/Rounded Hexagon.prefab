@@ -11,9 +11,8 @@ GameObject:
   - component: {fileID: 1822759485}
   - component: {fileID: 1822759484}
   - component: {fileID: 1822759483}
-  - component: {fileID: 1822759482}
   m_Layer: 0
-  m_Name: Hexagon2
+  m_Name: Rounded Hexagon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -78,22 +77,3 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!95 &1822759482
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1822759481}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 17b9eca389488e74a89b15cdcb0b5dfc, type: 3}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0

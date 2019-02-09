@@ -29,6 +29,10 @@ public class SingleBlaster : Weapon
     public override void FireWeapon()
     {
         Projectile projectile = projectilePool.Get();
+        Rigidbody projectileRBody = projectile.GetComponent<Rigidbody>();
+        //projectile.transform.parent = null;
+        //projectileRBody.position = firePoint.position;
+        //projectileRBody.rotation = firePoint.rotation;
         projectile.transform.position = firePoint.position;
         projectile.transform.rotation = firePoint.rotation;
         projectile.gameObject.SetActive(true);

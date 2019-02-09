@@ -16,6 +16,9 @@ public abstract class Projectile : MonoBehaviour, IPoolable
     }
 
     [SerializeField]
+    protected List<string> collidableTags;
+
+    [SerializeField]
     private float moveSpeed = 10f;
     [SerializeField]
     private float damageAmount = 5f;
@@ -25,6 +28,11 @@ public abstract class Projectile : MonoBehaviour, IPoolable
     public void ReturnToPoolAfter(float delay)
     {
         StartCoroutine("ReturnToPoolDelayed", delay);
+    }
+
+    public void CancelReturnToPool()
+    {
+        StopAllCoroutines();
     }
 
     protected virtual void ApplyDamage(Health targetHealth)

@@ -6,6 +6,11 @@ public class PauseMenu : MonoBehaviour
 {
     public static PauseMenu Instance { get; private set; }
 
+    public bool IsPaused { get; private set; }
+
+    [SerializeField]
+    private GameObject pauseMenuUI;
+
     private PlayerController pController;
 
     private void Awake()
@@ -13,22 +18,40 @@ public class PauseMenu : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            pController = GameObject.FindGameObjectWithTag("Player")
-                .GetComponent<PlayerController>();
+            pController = PlayerCharacter.Instance.Controller;
             DontDestroyOnLoad(gameObject);
         }
     }
 
-    private void Start()
+    private void OnEnable()
     {
         Time.timeScale = 0;
+        pController.enabled = false;
+        pauseMenuUI.SetActive(true);
+    }
+
+    private void OnDisable()
+    {
+        pauseMenuUI.SetActive(false);
+        pController.enabled = true;
+        Time.timeScale = 1;
     }
 
     private void Update()
     {
         if (Input.GetKeyUp(KeyCode.Escape))
         {
-            pController.enabled = true;
+            ResumeGame();
         }
+    }
+
+    public void PauseGame()
+    {
+        enabled = true;
+    }
+
+    public void ResumeGame()
+    {
+        enabled = false;
     }
 }
