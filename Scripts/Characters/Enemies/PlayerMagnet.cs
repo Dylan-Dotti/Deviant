@@ -18,6 +18,11 @@ public class PlayerMagnet : MonoBehaviour
                 magnetVelocityModifier.Velocity, value);
         }
     }
+    public FloatRange FalloffRadiusRange
+    {
+        get { return falloffRadiusRange; }
+        set { falloffRadiusRange = value; }
+    }
 
     [SerializeField]
     private MagnetMode magnetMode;

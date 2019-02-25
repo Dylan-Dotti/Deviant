@@ -47,7 +47,7 @@ public class Health : MonoBehaviour
 
     [SerializeField]
     private int maxHealth = 1;
-    [SerializeField]
+    //[SerializeField]
     private int currentHealth = 1;
 
     [SerializeField]

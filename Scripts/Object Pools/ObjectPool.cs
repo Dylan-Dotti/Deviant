@@ -1,13 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolable
+[System.Serializable]
+public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolable<T>
 {
     [SerializeField]
     private T prefab;
     [SerializeField]
-    private int initialPoolSize = 10;
+    private int initialPoolSize = 15;
 
     private Queue<T> pool;
 
@@ -20,15 +20,16 @@ public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolab
         }
     }
 
-    public T Get()
+    public virtual T Get()
     {
         if (pool.Count == 0)
         {
-            Debug.Log("Pool empty");
             ReturnToPool(Instantiate(prefab));
         }
         T poolObject = pool.Dequeue();
+        poolObject.transform.parent = null;
         poolObject.gameObject.SetActive(true);
+        poolObject.Pool = this;
         return poolObject;
     }
 

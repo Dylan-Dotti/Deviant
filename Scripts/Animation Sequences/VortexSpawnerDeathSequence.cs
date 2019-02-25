@@ -18,9 +18,16 @@ public class VortexSpawnerDeathSequence : AnimationSequence
     private VortexSpawnerRotate outerRing;
     [SerializeField]
     private VortexSpawnerRotate innerRing;
+    [SerializeField]
+    private AudioClip destablizedSound;
+    [SerializeField]
+    private AudioClip explosionSound;
+
+    private AudioSource source;
 
     private void Awake()
     {
+        source = GetComponent<AudioSource>();
     }
 
     protected override IEnumerator PlayAnimationSequence()
@@ -36,16 +43,22 @@ public class VortexSpawnerDeathSequence : AnimationSequence
         }
 
         //wind up
-        outerRing.RotationSpeed *= 4;
-        innerRing.RotationSpeed *= 4;
+        outerRing.RotationSpeed *= 2.5f;
+        innerRing.RotationSpeed *= 2.5f;
+        source.clip = destablizedSound;
+        source.Play();
         foreach (ParticleSystem particles in damagedParticles)
         {
             particles.Play();
         }
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1);
+        outerRing.RotationSpeed *= 1.8f;
+        innerRing.RotationSpeed *= 1.8f;
+        yield return new WaitForSeconds(1);
 
         //blast rings outward
         GetComponent<Collider>().enabled = false;
+        source.Stop();
         Explode();
 
         //wind down
@@ -92,6 +105,8 @@ public class VortexSpawnerDeathSequence : AnimationSequence
         ringRbody.AddForce(forceDirection * Random.Range(4f, 6f),
             ForceMode.VelocityChange);
 
+        source.clip = explosionSound;
+        source.Play();
         foreach (ParticleSystem particles in explosionParticles)
         {
             particles.Play();

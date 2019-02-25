@@ -43,7 +43,7 @@ public class BackgroundMusic : MonoBehaviour
     }
 
     [SerializeField]
-    private bool randomizeOnStart;
+    private bool shuffleOnStart;
 
     [Header("Tracks")]
     [SerializeField]
@@ -77,7 +77,7 @@ public class BackgroundMusic : MonoBehaviour
     private void Start()
     {
         PlayMode = AudioPlayMode.Combat;
-        if (randomizeOnStart)
+        if (shuffleOnStart)
         {
             ShuffleCombatTracks();
         }
@@ -186,12 +186,18 @@ public class BackgroundMusic : MonoBehaviour
 
     private void OnGamePause()
     {
-        FadeVolumePaused();
+        if (CurrentTrack != null)
+        {
+            FadeVolumePaused();
+        }
     }
 
     private void OnGameResume()
     {
-        FadeVolumeResumed();
+        if (CurrentTrack != null)
+        {
+            FadeVolumeResumed();
+        }
     }
 
     private void ShuffleTracks(List<MusicTrack> tracksToShuffle)

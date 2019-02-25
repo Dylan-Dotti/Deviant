@@ -44,6 +44,7 @@ public class SeekerMine : Enemy
     private GameObject explosionParticles;
 
     private SeekerMineState combatState = SeekerMineState.IDLE;
+    private AudioSource explosionSound;
     private NavMeshAgent navAgent;
     private IdleWander wanderBehavior;
     private PlayerCharacter player;
@@ -51,6 +52,7 @@ public class SeekerMine : Enemy
     protected override void Awake()
     {
         base.Awake();
+        explosionSound = GetComponent<AudioSource>();
         navAgent = GetComponent<NavMeshAgent>();
         wanderBehavior = GetComponent<IdleWander>();
     }
@@ -190,6 +192,7 @@ public class SeekerMine : Enemy
                 Mathf.Lerp(maxExplosionDamage, 0, (playerDist - damageFalloffInterval.Min) /
                 (damageFalloffInterval.Max - damageFalloffInterval.Min)));
         }
+        explosionSound.Play();
         CameraShake.Instance.ShakeByDistance(10f, playerDist, 15f);
         explosionParticles.SetActive(true);
         yield return null;

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class VortexSpawnerBlaster : Weapon
 {
@@ -11,9 +9,8 @@ public class VortexSpawnerBlaster : Weapon
 
     private Transform playerTransform;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         playerTransform = PlayerCharacter.Instance.transform;
     }
 

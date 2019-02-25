@@ -40,7 +40,8 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(SpawnPeriodically());
+        //StartCoroutine(SpawnPeriodically());
+        StartCoroutine(DemoSpawnSequence());
     }
 
     private void Update()
@@ -80,8 +81,8 @@ public class EnemySpawner : MonoBehaviour
             0, Random.Range(-1, 1)).normalized;
         float spawnMagnitude = Random.Range(4f, 10f);
 
-        GameObject spawnCharacter = Instantiate(spawn.ObjectToSpawn);
-        Rigidbody spawnCharacterRbody = spawnCharacter
+        GameObject spawnObject = Instantiate(spawn.ObjectToSpawn);
+        Rigidbody spawnCharacterRbody = spawnObject
             .GetComponentInChildren<Rigidbody>();
         spawnCharacterRbody.AddForce(spawnDirection *
             spawnMagnitude, ForceMode.VelocityChange);
@@ -107,7 +108,7 @@ public class EnemySpawner : MonoBehaviour
             float spawnerStartTime = Time.time;
             Vector3 spawnDirection = new Vector3(Random.Range(-1f, 1f),
                 0, Random.Range(-1f, 1f)).normalized;
-            float spawnMagnitude = Random.Range(5f, 9f);
+            float spawnMagnitude = Random.Range(4f, 6f);
             GameObject spawnCharacter = Instantiate(spawnSequence[0].ObjectToSpawn);
             Rigidbody spawnCharacterRbody = spawnCharacter
                 .GetComponentInChildren<Rigidbody>();
@@ -133,5 +134,52 @@ public class EnemySpawner : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    private IEnumerator DemoSpawnSequence()
+    {
+        while (!Input.GetKeyDown(KeyCode.Return))
+        {
+            yield return null;
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            SpawnEnemy(spawnSequence[0]);
+            yield return new WaitForSeconds(0.5f);
+        }
+        yield return new WaitForSeconds(3);
+        while (!Input.GetKeyDown(KeyCode.Return))
+        {
+            yield return null;
+        }
+        for (int i = 0; i < 2; i++)
+        {
+            SpawnEnemy(spawnSequence[1]);
+            yield return new WaitForSeconds(0.5f);
+        }
+        yield return new WaitForSeconds(3);
+        while (!Input.GetKeyDown(KeyCode.Return))
+        {
+            yield return null;
+        }
+        for (int i = 0; i < 2; i++)
+        {
+            SpawnEnemy(spawnSequence[2]);
+            yield return new WaitForSeconds(1);
+        }
+        yield return new WaitForSeconds(3);
+        while (!Input.GetKeyDown(KeyCode.Return))
+        {
+            yield return null;
+        }
+        SpawnEnemy(spawnSequence[3]);
+        yield return new WaitForSeconds(3);
+        while (!Input.GetKeyDown(KeyCode.Return))
+        {
+            yield return null;
+        }
+        GameObject.Find("Background Music")
+            .GetComponent<BackgroundMusic>().enabled = true;
+        StartCoroutine(SpawnPeriodically());
     }
 }

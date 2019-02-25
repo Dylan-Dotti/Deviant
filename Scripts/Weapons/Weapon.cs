@@ -2,7 +2,7 @@
 
 public abstract class Weapon : MonoBehaviour
 {
-    public float TimeSinceLastFire { get; protected set; }
+    public float TimeSinceLastFire { get; private set; }
     public float FireRate
     {
         get { return fireRate; }
@@ -11,14 +11,6 @@ public abstract class Weapon : MonoBehaviour
 
     [SerializeField]
     private float fireRate;
-
-    //[SerializeField]
-    protected AudioSource fireSound;
-
-    protected virtual void Awake()
-    {
-        fireSound = GetComponent<AudioSource>();
-    }
 
     protected virtual void Update()
     {
