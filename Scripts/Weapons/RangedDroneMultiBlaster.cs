@@ -24,5 +24,17 @@ public class RangedDroneMultiBlaster : Weapon
         recoiler.AttemptRecoil();
         int randIndex = Random.Range(0, blasters.Count);
         blasters[randIndex].FireWeapon();
+        if (blasters.Count > 1)
+        {
+            while (true)
+            {
+                int randIndex2 = Random.Range(0, blasters.Count);
+                if (randIndex2 != randIndex)
+                {
+                    blasters[randIndex2].FireWeapon();
+                    break;
+                }
+            }
+        }
     }
 }

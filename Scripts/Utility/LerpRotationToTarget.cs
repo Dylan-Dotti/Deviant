@@ -2,6 +2,11 @@
 
 public class LerpRotationToTarget : MonoBehaviour
 {
+    public float AngularVelocityDegrees
+    {
+        get { return angularVelocityDegrees; }
+        set { angularVelocityDegrees = value; }
+    }
     public Vector3 TargetPosition
     {
         get

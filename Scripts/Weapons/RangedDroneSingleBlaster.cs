@@ -7,6 +7,4 @@ public class RangedDroneSingleBlaster : SingleBlaster
             .GetProjectilePool(ObjectPoolManager
             .ProjectileType.RangedDrone);
     }
-
-
 }

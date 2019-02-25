@@ -75,10 +75,10 @@ public class EnemySpawner : MonoBehaviour
         }*/
     }
 
-    private void SpawnEnemy(Spawn spawn)
+    private void SpawnEnemy(Spawn spawn, bool updateTime)
     {
         Vector3 spawnDirection = new Vector3(Random.Range(-1f, 1f),
-            0, Random.Range(-1, 1)).normalized;
+            0, Random.Range(-1f, 1f)).normalized;
         float spawnMagnitude = Random.Range(4f, 10f);
 
         GameObject spawnObject = Instantiate(spawn.ObjectToSpawn);
@@ -86,7 +86,10 @@ public class EnemySpawner : MonoBehaviour
             .GetComponentInChildren<Rigidbody>();
         spawnCharacterRbody.AddForce(spawnDirection *
             spawnMagnitude, ForceMode.VelocityChange);
-        spawn.UpdateSpawnTime();
+        if (updateTime)
+        {
+            spawn.UpdateSpawnTime();
+        }
         timeSinceLastSpawn = 0;
     }
 
@@ -128,7 +131,7 @@ public class EnemySpawner : MonoBehaviour
                 if (Time.time - startTime >= spawn.SpawnTime && timeSinceLastSpawn >= 0.5f)
                 {
                     Debug.Log(spawn.SpawnTime);
-                    SpawnEnemy(spawn);
+                    SpawnEnemy(spawn, true);
                     break;
                 }
             }
@@ -144,7 +147,7 @@ public class EnemySpawner : MonoBehaviour
         }
         for (int i = 0; i < 3; i++)
         {
-            SpawnEnemy(spawnSequence[0]);
+            SpawnEnemy(spawnSequence[0], false);
             yield return new WaitForSeconds(0.5f);
         }
         yield return new WaitForSeconds(3);
@@ -154,7 +157,7 @@ public class EnemySpawner : MonoBehaviour
         }
         for (int i = 0; i < 2; i++)
         {
-            SpawnEnemy(spawnSequence[1]);
+            SpawnEnemy(spawnSequence[1], false);
             yield return new WaitForSeconds(0.5f);
         }
         yield return new WaitForSeconds(3);
@@ -164,7 +167,7 @@ public class EnemySpawner : MonoBehaviour
         }
         for (int i = 0; i < 2; i++)
         {
-            SpawnEnemy(spawnSequence[2]);
+            SpawnEnemy(spawnSequence[2], false);
             yield return new WaitForSeconds(1);
         }
         yield return new WaitForSeconds(3);
@@ -172,7 +175,7 @@ public class EnemySpawner : MonoBehaviour
         {
             yield return null;
         }
-        SpawnEnemy(spawnSequence[3]);
+        SpawnEnemy(spawnSequence[3], false);
         yield return new WaitForSeconds(3);
         while (!Input.GetKeyDown(KeyCode.Return))
         {

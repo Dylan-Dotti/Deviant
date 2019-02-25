@@ -9,10 +9,11 @@ public class RangedDrone : Enemy
     [SerializeField]
     private Weapon weapon;
     [SerializeField]
-    private float AttackRange = 8;
+    private float AttackRange = 10;
 
     private NavMeshAgent navAgent;
     private LerpRotationToTarget rotator;
+    private float rotatorStartSpeed;
     private Transform playerTransform;
 
     protected override void Awake()
@@ -20,6 +21,7 @@ public class RangedDrone : Enemy
         base.Awake();
         navAgent = GetComponent<NavMeshAgent>();
         rotator = GetComponentInChildren<LerpRotationToTarget>();
+        rotatorStartSpeed = rotator.AngularVelocityDegrees;
         playerTransform = PlayerCharacter.Instance.transform;
     }
 
@@ -37,7 +39,10 @@ public class RangedDrone : Enemy
             playerTransform.position) <= AttackRange)
         {
             weapon.AttemptFireWeapon();
+            rotator.AngularVelocityDegrees = rotatorStartSpeed;
         }
+        rotator.AngularVelocityDegrees = Mathf.Lerp(rotatorStartSpeed,
+            rotatorStartSpeed * 5, angleBetween / 180);
     }
 
     public override void Die()
