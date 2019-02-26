@@ -17,6 +17,7 @@ Controls:
 - Pause / Unpause : Escape
 - Camera zoom : Mouse wheel
 - Reset camera : Home
+- Play next song (after music starts) : N
 
 Contents:
 - Blender : Contains Blender models used by the game
