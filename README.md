@@ -4,12 +4,10 @@ CPSC 498 capstone project game
 
 2/26 update for intermediate presentation 1
 
-
 To play demo:
 1. Clone or download
 2. Navigate to builds folder
 3. Run "Deviant.exe"
-
 
 Controls:
 - **Advance to next slide / stage of demo** : Return / Enter
