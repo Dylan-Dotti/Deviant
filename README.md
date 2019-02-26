@@ -12,7 +12,7 @@ To play demo:
 Controls:
 - **Advance to next stage of demo** (brief cooldown) : Return / Enter
 - Movement : W, A, S, D
-- Shoot : Left mouse click
+- Shoot : Left mouse button
 - Boost (5s cooldown) : Space
 - Pause / Unpause : Escape
 - Camera zoom : Mouse wheel
