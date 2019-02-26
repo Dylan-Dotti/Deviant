@@ -10,7 +10,7 @@ To play demo:
 3. Run "Deviant.exe"
 
 Controls:
-- **Advance to next slide / stage of demo** (brief cooldown) : Return / Enter
+- **Advance to next stage of demo** (brief cooldown) : Return / Enter
 - Movement : W, A, S, D
 - Shoot : Left mouse click
 - Boost (5s cooldown) : Space
