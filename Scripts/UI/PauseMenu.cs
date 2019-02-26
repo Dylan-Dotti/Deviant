@@ -23,8 +23,8 @@ public class PauseMenu : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            pController = PlayerCharacter.Instance.Controller;
             DontDestroyOnLoad(gameObject);
+            pController = PlayerCharacter.Instance.Controller;
         }
     }
 
