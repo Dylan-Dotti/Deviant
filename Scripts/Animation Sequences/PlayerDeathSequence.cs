@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerDeathSequence : AnimationSequence
 {
@@ -24,5 +25,7 @@ public class PlayerDeathSequence : AnimationSequence
         yield return null;
         playerBody.SetActive(false);
         IsPlaying = false;
+        yield return new WaitForSeconds(5);
+        SceneManager.LoadScene(1);
     }
 }

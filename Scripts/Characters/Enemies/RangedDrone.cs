@@ -56,7 +56,7 @@ public class RangedDrone : Enemy
         while (true)
         {
             if (Vector3.Distance(transform.position,
-                playerTransform.position) > AttackRange)
+                playerTransform.position) > AttackRange * 0.8f)
             {
                 navAgent.destination = playerTransform.position;
             }

@@ -7,8 +7,6 @@ public class Duplicator : Enemy
 {
     public static CharacterDelegate DuplicatorDeathEvent;
 
-    private static int numDuplicators = 0;
-
     [SerializeField]
     private Duplicator duplicatorPrefab;
 
@@ -17,13 +15,7 @@ public class Duplicator : Enemy
     protected override void Awake()
     {
         base.Awake();
-        numDuplicators++;
         rBody = GetComponent<Rigidbody>();
-    }
-
-    private void OnDestroy()
-    {
-        numDuplicators--;
     }
 
     public override void Die()
@@ -42,14 +34,14 @@ public class Duplicator : Enemy
     private IEnumerator SeparateFromClone(Duplicator clone)
     {
         Vector3 separationVelocity = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f))
-            .normalized * Random.Range(0.66f, 1.25f);
+            .normalized * Random.Range(0.75f, 1.25f);
         rBody.velocity = separationVelocity;
         clone.rBody.velocity = -separationVelocity;
 
         List<Collider> colliders = new List<Collider>();
         colliders.AddRange(GetComponentsInChildren<Collider>());
         foreach (Collider c in colliders) c.isTrigger = true;
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.3f);
         foreach (Collider c in colliders) c.isTrigger = false;
     }
 
@@ -59,23 +51,16 @@ public class Duplicator : Enemy
         colliders.AddRange(GetComponentsInChildren<Collider>());
         while (true)
         {
-            if (numDuplicators < 200)
-            {
-                yield return new WaitForSeconds(Random.Range(3f, 5f));
-                Duplicator clone = Instantiate(duplicatorPrefab, transform.position, transform.rotation);
-                Vector3 separationVelocity = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f))
-                    .normalized * Random.Range(1f, 2f);
-                rBody.velocity = separationVelocity;
-                clone.rBody.velocity = -separationVelocity;
+            yield return new WaitForSeconds(Random.Range(3f, 5f));
+            Duplicator clone = Instantiate(duplicatorPrefab, transform.position, transform.rotation);
+            Vector3 separationVelocity = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f))
+                .normalized * Random.Range(1f, 2f);
+            rBody.velocity = separationVelocity;
+            clone.rBody.velocity = -separationVelocity;
 
-                foreach(Collider c in colliders) c.isTrigger = true;
-                yield return new WaitForSeconds(0.25f);
-                foreach (Collider c in colliders) c.isTrigger = false;
-            }
-            else
-            {
-                yield return null;
-            }
+            foreach(Collider c in colliders) c.isTrigger = true;
+            yield return new WaitForSeconds(0.25f);
+            foreach (Collider c in colliders) c.isTrigger = false;
         }
     }
 

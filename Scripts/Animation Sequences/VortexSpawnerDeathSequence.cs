@@ -46,6 +46,7 @@ public class VortexSpawnerDeathSequence : AnimationSequence
         outerRing.RotationSpeed *= 2.5f;
         innerRing.RotationSpeed *= 2.5f;
         source.clip = destablizedSound;
+        source.volume *= 0.75f;
         source.Play();
         foreach (ParticleSystem particles in damagedParticles)
         {
@@ -59,6 +60,7 @@ public class VortexSpawnerDeathSequence : AnimationSequence
         //blast rings outward
         GetComponent<Collider>().enabled = false;
         source.Stop();
+        source.volume /= 0.75f;
         Explode();
 
         //wind down

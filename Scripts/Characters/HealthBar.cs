@@ -23,15 +23,17 @@ public class HealthBar : MonoBehaviour
 
     [Header("Color Lerp Percentages")]
     [SerializeField][Range(0f, 1f)]
-    private float yellowLerpStartPercentage = 1f;
+    private float yellowLerpStartPercentage = 0.85f;
     [SerializeField][Range(0f, 1f)]
-    private float yellowLerpEndPercentage = 0.66f;
+    private float yellowLerpEndPercentage = 0.5f;
     [SerializeField][Range(0f, 1f)]
-    private float redLerpStartPercentage = 0.66f;
+    private float redLerpStartPercentage = 0.5f;
     [SerializeField][Range(0f, 1f)]
-    private float redLerpEndPercentage = 0.33f;
+    private float redLerpEndPercentage = 0.15f;
 
     [Header("Fade Effect")]
+    [SerializeField]
+    private bool fadeEnabled = true;
     [SerializeField]
     private float fadeDuration = 2f;
     [SerializeField]
@@ -45,11 +47,14 @@ public class HealthBar : MonoBehaviour
     {
         timeSinceLastChange = fadeDelay;
         foregroundStartAlpha = healthBarForeground.color.a;
-        healthBarForeground.color = new Color(healthBarForeground.color.r, healthBarForeground.color.g,
-            healthBarForeground.color.b, 0);
         backgroundStartAlpha = healthBarBackground.color.a;
-        healthBarBackground.color = new Color(healthBarBackground.color.r, healthBarBackground.color.g,
-            healthBarBackground.color.b, 0);
+        if (fadeEnabled)
+        {
+            healthBarForeground.color = new Color(healthBarForeground.color.r, healthBarForeground.color.g,
+                healthBarForeground.color.b, 0);
+            healthBarBackground.color = new Color(healthBarBackground.color.r, healthBarBackground.color.g,
+                healthBarBackground.color.b, 0);
+        }
         enabled = false;
     }
 
@@ -81,9 +86,13 @@ public class HealthBar : MonoBehaviour
                 (redLerpStartPercentage - redLerpEndPercentage);
             healthBarForeground.color = Vector4.Lerp(yellowColor, redColor, lerpPercentage);
         }
-        timeSinceLastChange = 0f;
-        FadeIn();
-        enabled = true;
+        //fade out
+        if (fadeEnabled)
+        {
+            timeSinceLastChange = 0f;
+            FadeIn();
+            enabled = true;
+        }
     }
 
     public void FadeIn()

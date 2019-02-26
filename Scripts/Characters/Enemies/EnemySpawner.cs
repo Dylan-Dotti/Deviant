@@ -40,39 +40,12 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
-        //StartCoroutine(SpawnPeriodically());
         StartCoroutine(DemoSpawnSequence());
     }
 
     private void Update()
     {
         timeSinceLastSpawn += Time.deltaTime;
-        /*List<Spawn> spawnsToRemove = new List<Spawn>();
-        float currentTime = Time.time - spawnStartTime;
-        foreach (Spawn spawn in spawnSequence)
-        {
-            if (currentTime > spawn.SpawnTime)
-            {
-                Vector3 spawnDirection = new Vector3(Random.Range(-1f, 1f),
-                    0, Random.Range(-1, 1)).normalized;
-                float spawnMagnitude = Random.Range(4f, 4f);
-
-                GameObject spawnCharacter = Instantiate(spawn.ObjectToSpawn);
-                Rigidbody spawnCharacterRbody = spawnCharacter
-                    .GetComponentInChildren<Rigidbody>();
-                spawnCharacterRbody.AddForce(spawnDirection * 
-                    spawnMagnitude, ForceMode.VelocityChange);
-                spawnsToRemove.Add(spawn);
-            }
-        }
-        foreach (Spawn spawn in spawnsToRemove)
-        {
-            spawnSequence.Remove(spawn);
-        }
-        if (spawnSequence.Count == 0)
-        {
-            Dissipate();
-        }*/
     }
 
     private void SpawnEnemy(Spawn spawn, bool updateTime)

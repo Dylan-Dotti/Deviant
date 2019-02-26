@@ -7,6 +7,9 @@ public class PlayerSpawner : MonoBehaviour
     [SerializeField]
     private GameObject playerBody;
     [SerializeField]
+    private GameObject playerUI;
+    //remove later
+    [SerializeField]
     private EnemySpawnerInitSequence enemySpawnerInit;
 
     [Header("Particle Effects")]
@@ -27,6 +30,7 @@ public class PlayerSpawner : MonoBehaviour
     private void Start()
     {
         playerBody.SetActive(false);
+        playerUI.SetActive(false);
         StartCoroutine(SpawnPlayer());
     }
 
@@ -54,7 +58,8 @@ public class PlayerSpawner : MonoBehaviour
         yield return new WaitForSeconds(0.95f);
         explosionParticles.Play();
         playerBody.SetActive(true);
+        playerUI.SetActive(true);
         pController.enabled = true;
-        enemySpawnerInit.enabled = true;
+        //enemySpawnerInit.enabled = true;
     }
 }

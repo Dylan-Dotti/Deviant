@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Boost : MonoBehaviour
@@ -11,22 +10,37 @@ public class Boost : MonoBehaviour
     [SerializeField]
     private VelocityModifier boostVelocityModifier;
     [SerializeField]
+    private float boostCooldown = 5;
+    [SerializeField]
     private ParticleSystem boostParticles;
 
+    private float timeSinceLastBoost;
     private PlayerController pController;
 
     private void Awake()
     {
         IsBoosting = false;
+        timeSinceLastBoost = boostCooldown;
         pController = PlayerCharacter.Instance.Controller;
+    }
+
+    private void Update()
+    {
+        timeSinceLastBoost += Time.deltaTime;
+    }
+
+    public void AttemptBoost(Vector3 boostDirection)
+    {
+        if (!IsBoosting && timeSinceLastBoost >= boostCooldown)
+        {
+            ActivateBoost(boostDirection);
+        }
     }
 
     public void ActivateBoost(Vector3 boostDirection)
     {
-        if (!IsBoosting)
-        {
-            StartCoroutine(BoostSequence(boostDirection));
-        }
+        StartCoroutine(BoostSequence(boostDirection));
+        timeSinceLastBoost = 0;
     }
 
     public void CancelBoost()

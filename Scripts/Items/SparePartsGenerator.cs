@@ -34,7 +34,6 @@ public class SparePartsGenerator : MonoBehaviour
             //assign a value
             part.Value = Random.Range(valuePerPartRange.Min, 
                 valuePerPartRange.Max + 1);
-            Debug.Log(part.Value);
             //launch it somewhere
             Vector3 spawnDirection = new Vector3(Random.Range(-1f, 1f),
                 0f, Random.Range(-1f, 1f));

@@ -115,7 +115,7 @@ public class PlayerController : MonoBehaviour
 
         if (BoostEnabled && Input.GetKeyDown(KeyCode.Space))
         {
-            boost.ActivateBoost(moveDirection);
+            boost.AttemptBoost(moveDirection);
         }
 
         Vector3 newVelocity = playerVelocityModifier.Velocity + moveDirection * Acceleration * Time.fixedDeltaTime;
