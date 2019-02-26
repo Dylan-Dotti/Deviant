@@ -33,6 +33,8 @@ public class EnemySpawner : MonoBehaviour
 
     [SerializeField]
     private List<Spawn> spawnSequence;
+    [SerializeField]
+    private GameObject music;
 
     private float spawnStartTime;
     private float timeSinceLastSpawn;
@@ -154,8 +156,11 @@ public class EnemySpawner : MonoBehaviour
         {
             yield return null;
         }
-        GameObject.Find("Background Music")
-            .GetComponent<BackgroundMusic>().enabled = true;
+        if (music == null)
+        {
+            Application.Quit();
+        }
+        music.gameObject.SetActive(true);
         StartCoroutine(SpawnPeriodically());
     }
 }

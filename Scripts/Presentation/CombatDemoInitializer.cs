@@ -26,8 +26,8 @@ public class CombatDemoInitializer : MonoBehaviour
             yield return null;
         }
         playerObject.SetActive(true);
+        yield return new WaitForSeconds(5);
         UIObject.SetActive(true);
-        yield return new WaitForSeconds(3);
         while (!Input.GetKeyDown(KeyCode.Return))
         {
             yield return null;

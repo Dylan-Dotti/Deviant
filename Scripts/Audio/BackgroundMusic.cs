@@ -64,7 +64,6 @@ public class BackgroundMusic : MonoBehaviour
 
     private AudioSource source;
     private float defaultVolume;
-    private bool screenFocused;
 
     private void Awake()
     {
@@ -85,7 +84,7 @@ public class BackgroundMusic : MonoBehaviour
 
     private void Update()
     {
-        if (screenFocused && !Muted)
+        if (Application.isFocused && !Muted)
         {
             if (Input.GetKeyDown(KeyCode.N) || !source.isPlaying || 
                 source.time > CurrentTrack.FadeOutTime)
@@ -105,7 +104,6 @@ public class BackgroundMusic : MonoBehaviour
         {
             source.Pause();
         }
-        screenFocused = focus;
     }
 
     public void PlayNextSong()
