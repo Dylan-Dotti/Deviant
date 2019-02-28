@@ -24,3 +24,5 @@ Contents:
 - Blender : Contains Blender models used by the game
 - Builds : Contains the .exe for the game and other files necessary to run it
 - Scripts : Contains scripts used by the game 
+
+For questions or suggestions, email dylan.dotti.16@cnu.edu
