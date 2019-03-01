@@ -32,7 +32,7 @@ public class WeaponRecoil : MonoBehaviour
 
     public void Recoil()
     {
-        transform.localPosition = transform.localPosition +
+        transform.localPosition = recoilResetPos + 
             recoilDistance * -forwardDirection;
     }
 
