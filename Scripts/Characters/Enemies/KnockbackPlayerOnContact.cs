@@ -18,7 +18,7 @@ public class KnockbackPlayerOnContact : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.tag == PlayerCharacter.PLAYER_BODY_TAG)
+        if (collision.collider.tag == Tags.PLAYER_BODY_TAG)
         {
             StopAllCoroutines();
             StartCoroutine(KnockbackPlayer());
@@ -27,7 +27,7 @@ public class KnockbackPlayerOnContact : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == PlayerCharacter.PLAYER_BODY_TAG)
+        if (other.tag == Tags.PLAYER_BODY_TAG)
         {
             StopAllCoroutines();
             StartCoroutine(KnockbackPlayer());

@@ -12,6 +12,13 @@ public abstract class Weapon : MonoBehaviour
     [SerializeField]
     private float fireRate;
 
+    private Quaternion originalOrientation;
+
+    protected virtual void Start()
+    {
+        originalOrientation = transform.localRotation;
+    }
+
     protected virtual void Update()
     {
         TimeSinceLastFire += Time.deltaTime;
@@ -33,5 +40,10 @@ public abstract class Weapon : MonoBehaviour
     public virtual void TurnToFace(Vector3 targetPos)
     {
         transform.LookAt(targetPos);
+    }
+
+    public virtual void ResetOrientation()
+    {
+        transform.rotation = originalOrientation;
     }
 }

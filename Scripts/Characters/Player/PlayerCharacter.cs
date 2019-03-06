@@ -7,9 +7,8 @@ public sealed class PlayerCharacter : Character
 
     public static PlayerCharacter Instance { get; private set; }
 
-    public const string PLAYER_BODY_TAG = "PlayerBody";
-
     public PlayerController Controller { get; private set; }
+    //public PlayerUpgrades Upgrades { get; private set; }
     public int NumSpareParts
     {
         get { return numSpareParts; }
@@ -22,19 +21,28 @@ public sealed class PlayerCharacter : Character
     protected override void Awake()
     {
         base.Awake();
-        Debug.Log("Player Awake");
         if (Instance == null)
         {
             Instance = this;
             Controller = GetComponent<PlayerController>();
+            //Upgrades = new PlayerUpgrades();
             deathSequence = GetComponent<PlayerDeathSequence>();
         }
+    }
+
+    private void OnEnable()
+    {
+        Controller.enabled = true;
+    }
+
+    private void OnDisable()
+    {
+        Controller.enabled = false;
     }
 
     private void Start()
     {
         PlayerSpawnEvent?.Invoke(this);
-        Controller.enabled = true;
     }
 
     public override void Die()

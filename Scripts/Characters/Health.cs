@@ -45,20 +45,16 @@ public class Health : MonoBehaviour
     }
     public float HealthPercentage { get { return (float)currentHealth / maxHealth; } }
 
-    [SerializeField]
-    private int maxHealth = 1;
-    //[SerializeField]
-    private int currentHealth = 1;
 
     [SerializeField]
     HealthBar healthBar;
+    [SerializeField]
+    private int maxHealth = 1;
+
+    private int currentHealth = 1;
 
     private void Awake()
     {
-        if (GetComponent<PlayerCharacter>() != null)
-        {
-            Debug.Log("Player health awake");
-        }
         currentHealth = maxHealth;
         CanReceiveDamage = true;
     }

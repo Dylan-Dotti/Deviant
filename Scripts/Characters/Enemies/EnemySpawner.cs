@@ -43,6 +43,7 @@ public class EnemySpawner : MonoBehaviour
     private void Start()
     {
         StartCoroutine(DemoSpawnSequence());
+        //StartCoroutine(SpawnPeriodically());
     }
 
     private void Update()
@@ -105,7 +106,6 @@ public class EnemySpawner : MonoBehaviour
             {
                 if (Time.time - startTime >= spawn.SpawnTime && timeSinceLastSpawn >= 0.5f)
                 {
-                    Debug.Log(spawn.SpawnTime);
                     SpawnEnemy(spawn, true);
                     break;
                 }
@@ -156,9 +156,11 @@ public class EnemySpawner : MonoBehaviour
         {
             yield return null;
         }
-        if (music == null)
+        SpawnEnemy(spawnSequence[4], false);
+        yield return new WaitForSeconds(3);
+        while (!Input.GetKeyDown(KeyCode.Return))
         {
-            Application.Quit();
+            yield return null;
         }
         music.gameObject.SetActive(true);
         StartCoroutine(SpawnPeriodically());

@@ -36,7 +36,7 @@ public class PlayerSpawner : MonoBehaviour
 
     private IEnumerator SpawnPlayer()
     {
-        pController.enabled = false;
+        pController.KeyboardInputEnabled = false;
         implosionParticles.Play();
         yield return new WaitForSeconds(0.75f);
         centralParticles.Play();
@@ -59,7 +59,7 @@ public class PlayerSpawner : MonoBehaviour
         explosionParticles.Play();
         playerBody.SetActive(true);
         playerUI.SetActive(true);
-        pController.enabled = true;
+        pController.KeyboardInputEnabled = true;
         //enemySpawnerInit.enabled = true;
     }
 }

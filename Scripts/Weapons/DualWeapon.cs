@@ -1,8 +1,10 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DualWeapon : Weapon
 {
+    public Weapon LeftWeapon { get { return leftWeapon; } }
+    public Weapon RightWeapon { get { return rightWeapon; } }
+
     [SerializeField]
     private Weapon leftWeapon;
     [SerializeField]

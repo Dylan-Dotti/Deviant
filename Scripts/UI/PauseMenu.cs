@@ -24,12 +24,12 @@ public class PauseMenu : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            pController = PlayerCharacter.Instance.Controller;
         }
     }
 
     private void OnEnable()
     {
+        pController = PlayerCharacter.Instance.Controller;
         GamePausedEvent?.Invoke();
         Time.timeScale = 0;
         pController.enabled = false;
@@ -46,7 +46,7 @@ public class PauseMenu : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             ResumeGame();
         }

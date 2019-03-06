@@ -61,9 +61,17 @@ public class PlayerController : MonoBehaviour
         //print framerate
         //Debug.Log(1 / Time.deltaTime);
 
-        if (KeyboardInputEnabled && Input.GetKeyUp(KeyCode.Escape))
+        if (KeyboardInputEnabled)
         {
-            PauseMenu.Instance.PauseGame();
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                PauseMenu.Instance.PauseGame();
+            }
+            else if ((Input.GetKey(KeyCode.LeftShift) || 
+                Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.R))
+            {
+                UpgradeMenu.Instance.enabled = true;
+            }
         }
     }
 
@@ -139,8 +147,6 @@ public class PlayerController : MonoBehaviour
         {
             rBody.velocity += modifier.Velocity;
         }
-        //Debug.Log(transform.InverseTransformDirection(MoveVelocity));
-        //Debug.Log(TotalLocalVelocity);
     }
 
     private void RotatePlayer()

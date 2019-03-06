@@ -36,12 +36,12 @@ public abstract class Item : MonoBehaviour
 
     protected virtual void OnTriggerEnter(Collider other)
     {
-        if (other.tag == PlayerCharacter.PLAYER_BODY_TAG)
+        if (other.tag == Tags.PLAYER_BODY_TAG)
         {
             GetComponentInChildren<Collider>().enabled = false;
             MergeWithPlayer();
         }
-        else if (other.tag == "Wall")
+        else if (other.tag == Tags.WALL_TAG)
         {
             rbody.velocity = Vector3.zero;
             if (isMovingToPlayer)

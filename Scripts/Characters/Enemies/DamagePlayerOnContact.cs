@@ -25,7 +25,7 @@ public class DamagePlayerOnContact : MonoBehaviour
 
     private void OnCollisionStay(Collision collision)
     {
-        if (collision.collider.tag == PlayerCharacter.PLAYER_BODY_TAG)
+        if (collision.collider.tag == Tags.PLAYER_BODY_TAG)
         {
             AttemptDamagePlayer();
         }
@@ -33,7 +33,7 @@ public class DamagePlayerOnContact : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.tag == PlayerCharacter.PLAYER_BODY_TAG)
+        if (other.tag == Tags.PLAYER_BODY_TAG)
         {
             AttemptDamagePlayer();
         }
