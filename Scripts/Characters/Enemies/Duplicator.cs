@@ -22,24 +22,32 @@ public class Duplicator : Enemy
     {
         StopAllCoroutines();
         StartCoroutine(DeathSequence());
+        DuplicatorDeathEvent?.Invoke(this);
     }
 
     public Duplicator Duplicate()
     {
-        Duplicator clone = Instantiate(duplicatorPrefab, transform.position, transform.rotation);
+        Duplicator clone = Instantiate(duplicatorPrefab, 
+            transform.position, transform.rotation);
         StartCoroutine(SeparateFromClone(clone));
         return clone;
     }
 
+    protected override IEnumerator SpawnSequence()
+    {
+        yield return null;
+    }
+
     private IEnumerator SeparateFromClone(Duplicator clone)
     {
-        Vector3 separationVelocity = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f))
+        Vector3 separationVelocity = new Vector3(
+            Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f))
             .normalized * Random.Range(0.75f, 1.25f);
         rBody.velocity = separationVelocity;
         clone.rBody.velocity = -separationVelocity;
 
-        List<Collider> colliders = new List<Collider>();
-        colliders.AddRange(GetComponentsInChildren<Collider>());
+        List<Collider> colliders = new List<Collider>(
+            GetComponentsInChildren<Collider>());
         foreach (Collider c in colliders) c.isTrigger = true;
         yield return new WaitForSeconds(0.3f);
         foreach (Collider c in colliders) c.isTrigger = false;
@@ -52,21 +60,15 @@ public class Duplicator : Enemy
         while (true)
         {
             yield return new WaitForSeconds(Random.Range(3f, 5f));
-            Duplicator clone = Instantiate(duplicatorPrefab, transform.position, transform.rotation);
-            Vector3 separationVelocity = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f))
-                .normalized * Random.Range(1f, 2f);
-            rBody.velocity = separationVelocity;
-            clone.rBody.velocity = -separationVelocity;
-
-            foreach(Collider c in colliders) c.isTrigger = true;
-            yield return new WaitForSeconds(0.25f);
-            foreach (Collider c in colliders) c.isTrigger = false;
+            Duplicator clone = Instantiate(duplicatorPrefab, 
+                transform.position, transform.rotation);
+            StartCoroutine(SeparateFromClone(clone));
         }
     }
 
+    //remove from class
     private IEnumerator DeathSequence()
     {
-        DuplicatorDeathEvent?.Invoke(this);
         List<GameObject> childObjects = new List<GameObject>();
         for (int i = 0; i < transform.childCount; i++)
         {
@@ -87,11 +89,13 @@ public class Duplicator : Enemy
             childRB.drag = 1f;
 
             //add forces
-            Vector3 forceDirection = new Vector3(childGO.transform.position.x - transform.position.x,
-                -0.2f, childGO.transform.position.z - transform.position.z).normalized;
+            Vector3 forceDirection = new Vector3(childGO.transform.position.x - 
+                transform.position.x, -0.2f, childGO.transform.position.z - 
+                transform.position.z).normalized;
             childRB.AddForce(forceDirection * Random.Range(0.1f, 1f), ForceMode.Impulse);
             float torqueDirectionScalar = Random.value > 0.5f ? 1 : -1;
-            childRB.AddTorque(Random.Range(0.25f, 0.5f) * torqueDirectionScalar * Vector3.up, ForceMode.Impulse);
+            childRB.AddTorque(Random.Range(0.25f, 0.5f) * 
+                torqueDirectionScalar * Vector3.up, ForceMode.Impulse);
         }
 
         //shrink

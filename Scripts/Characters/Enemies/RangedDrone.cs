@@ -34,9 +34,10 @@ public class RangedDrone : Enemy
         playerTransform = PlayerCharacter.Instance.transform;
     }
 
-    private void Start()
+    protected override void Start()
     {
-        StartCoroutine(SetMoveTargetPeriodic());
+        base.Start();
+        enabled = false;
     }
 
     private void Update()
@@ -146,6 +147,14 @@ public class RangedDrone : Enemy
         return validMoveDirections;
     }
 
+    protected override IEnumerator SpawnSequence()
+    {
+        yield return new WaitForSeconds(1.5f);
+        navAgent.enabled = true;
+        StartCoroutine(SetMoveTargetPeriodic());
+        enabled = true;
+    }
+
     private IEnumerator SetMoveTargetPeriodic()
     {
         while (true)
@@ -180,7 +189,7 @@ public class RangedDrone : Enemy
         }
     }
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         foreach (Vector3 direction in GetRandomMoveDirections(
             -rotator.transform.forward, rotator.transform.right, 4, 3))
@@ -197,5 +206,5 @@ public class RangedDrone : Enemy
         {
             Gizmos.DrawRay(transform.position, direction * 4);
         }
-    }
+    }*/
 }

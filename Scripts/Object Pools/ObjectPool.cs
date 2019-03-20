@@ -5,18 +5,29 @@ using UnityEngine;
 public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolable<T>
 {
     [SerializeField]
-    private T prefab;
+    private List<T> prefabs;
     [SerializeField]
-    private int initialPoolSize = 15;
+    private int initialObjectsPerPrefab = 15;
 
     private Queue<T> pool;
 
     protected virtual void Awake()
     {
-        pool = new Queue<T>(initialPoolSize);
-        for (int i = 0; i < initialPoolSize; i++)
+        //shuffle prefabs before returning to pool
+        RandomizableList<T> tempPool = new RandomizableList<T>();
+        for (int i = 0; i < prefabs.Count; i++)
         {
-            ReturnToPool(Instantiate(prefab));
+            for (int j = 0; j < initialObjectsPerPrefab; j++)
+            {
+                tempPool.Add(Instantiate(prefabs[Random.Range(0, prefabs.Count)]));
+            }
+        }
+        tempPool.Shuffle();
+
+        pool = new Queue<T>(tempPool.Count);
+        foreach (T item in tempPool)
+        {
+            ReturnToPool(item);
         }
     }
 
@@ -24,12 +35,10 @@ public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolab
     {
         if (pool.Count == 0)
         {
-            ReturnToPool(Instantiate(prefab));
+            ReturnToPool(Instantiate(prefabs[Random.Range(0, prefabs.Count)]));
         }
         T poolObject = pool.Dequeue();
-        poolObject.transform.parent = null;
         poolObject.gameObject.SetActive(true);
-        poolObject.Pool = this;
         return poolObject;
     }
 
@@ -38,5 +47,6 @@ public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolab
         objectToReturn.transform.parent = transform;
         objectToReturn.gameObject.SetActive(false);
         pool.Enqueue(objectToReturn);
+        objectToReturn.Pool = this;
     }
 }

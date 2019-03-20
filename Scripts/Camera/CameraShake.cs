@@ -7,9 +7,6 @@ public class CameraShake : MonoBehaviour
 {
     public static CameraShake Instance { get; private set; }
 
-    [SerializeField]
-    private Transform playerTransform;
-
     private void Awake()
     {
         if (Instance == null)

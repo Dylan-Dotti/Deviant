@@ -2,33 +2,34 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MaterialLerp : MonoBehaviour
+public class MaterialLerp : Lerper
 {
-    public float LerpDuration
-    {
-        get { return lerpDuration; }
-        set { lerpDuration = value; }
-    }
-
-    private Material startMaterial;
     [SerializeField]
     private Material lerpMaterial;
 
-    [SerializeField]
-    private float lerpDuration = 3.0f;
     private Renderer rend;
-    private float startTime;
+    private Material originalMaterial;
 
     private void Start()
     {
-        startTime = Time.time;
         rend = GetComponent<Renderer>();
-        startMaterial = new Material(rend.material);
+        originalMaterial = new Material(rend.material);
+        //originalMaterial = rend.material;
     }
 
-    private void Update()
+    protected override IEnumerator LerpCR(bool forward, float duration)
     {
-        float lerp = Mathf.PingPong(Time.time - startTime, LerpDuration) / LerpDuration;
-        rend.material.Lerp(startMaterial, lerpMaterial, lerp);
+        Debug.Log(duration);
+        Material startMaterial = rend.material;
+        Material endMaterial = forward ? lerpMaterial : originalMaterial;
+        float startTime = Time.time;
+        for (float elapsed = 0; elapsed < duration;
+            elapsed = Time.time - startTime)
+        {
+            rend.material.Lerp(startMaterial, endMaterial, elapsed / duration);
+            yield return null;
+        }
+        rend.material = endMaterial;
+        yield return StartCoroutine(base.LerpCR(forward, duration));
     }
 }

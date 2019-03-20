@@ -2,167 +2,145 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemySpawner : MonoBehaviour
+public abstract class EnemySpawner : MonoBehaviour
 {
-    [System.Serializable]
-    public class Spawn
+    public delegate void EnemySpawnerDelegate();
+    public event EnemySpawnerDelegate EnemySpawnerDissipateEvent;
+
+    public float TimeSinceLastSpawn { get; private set; }
+
+    private EnemyFactory eFactory;
+    private EnemySpawnerDissipate dissipateSequence;
+
+    protected virtual void Awake()
     {
-        public GameObject ObjectToSpawn { get { return objectToSpawn; } }
-        public float SpawnTime { get { return spawnTime; } }
-        public float Cooldown { get { return cooldown; } }
+        eFactory = EnemyFactory.Instance;
+        dissipateSequence = GetComponent<EnemySpawnerDissipate>();
+    }
 
-        [SerializeField]
-        private GameObject objectToSpawn;
-        [SerializeField]
-        private float spawnTime;
-        [SerializeField]
-        private float cooldown;
+    protected virtual void Update()
+    {
+        TimeSinceLastSpawn += Time.deltaTime;
+    }
 
-        public Spawn(GameObject objToSpawn, float spawnTime, float cooldown)
+    public void Dissipate()
+    {
+        StopAllCoroutines();
+        EnemySpawnerDissipateEvent?.Invoke();
+        dissipateSequence.PlayAnimation();
+    }
+
+    public void DissipateAfterSeconds(float seconds)
+    {
+        StartCoroutine(DissipateAfterSecondsCR(seconds));
+    }
+
+    public bool AttemptSpawnAndLaunchEnemy(EnemyType eType)
+    {
+        if (TimeSinceLastSpawn < 0.4f)
         {
-            objectToSpawn = objToSpawn;
-            this.spawnTime = spawnTime;
-            this.cooldown = cooldown;
+            return false;
         }
+        SpawnAndLaunchEnemy(eType);
+        return true;
+    }
 
-        public void UpdateSpawnTime()
+    public void SpawnAndLaunchEnemy(EnemyType eType)
+    {
+        Vector3 spawnDirection = GetIdealRandomLaunchDirection(20, 20);
+        float spawnMagnitude = Random.Range(7f, 12f);
+
+        Enemy spawnedEnemy = eFactory.InstantiateEnemy(eType, transform.position);
+        LaunchEnemy(spawnedEnemy, spawnDirection * spawnMagnitude);
+        TimeSinceLastSpawn = 0;
+    }
+
+    private void LaunchEnemy(Enemy enemy, Vector3 launchVelocity)
+    {
+        Rigidbody enemyRb = enemy.GetComponent<Rigidbody>();
+        enemyRb.AddForce(launchVelocity, ForceMode.VelocityChange);
+    }
+
+    protected Vector3 GetIdealRandomLaunchDirection(int numRandomSamples, int collisionCheckRange)
+    {
+        Dictionary<Ray, int> rayCollisionCounts = new Dictionary<Ray, int>();
+        int playerLayerMask = ~(1 >> LayerMask.NameToLayer("PlayerBody"));
+
+        //cast a ray in the 8 cardinal directions
+        for (int i = 0; i < 8; i++)
         {
-            spawnTime += cooldown;
-        }
-    }
-
-    [SerializeField]
-    private List<Spawn> spawnSequence;
-    [SerializeField]
-    private GameObject music;
-
-    private float spawnStartTime;
-    private float timeSinceLastSpawn;
-
-
-    private void Start()
-    {
-        StartCoroutine(DemoSpawnSequence());
-        //StartCoroutine(SpawnPeriodically());
-    }
-
-    private void Update()
-    {
-        timeSinceLastSpawn += Time.deltaTime;
-    }
-
-    private void SpawnEnemy(Spawn spawn, bool updateTime)
-    {
-        Vector3 spawnDirection = new Vector3(Random.Range(-1f, 1f),
-            0, Random.Range(-1f, 1f)).normalized;
-        float spawnMagnitude = Random.Range(4f, 10f);
-
-        GameObject spawnObject = Instantiate(spawn.ObjectToSpawn);
-        Rigidbody spawnCharacterRbody = spawnObject
-            .GetComponentInChildren<Rigidbody>();
-        spawnCharacterRbody.AddForce(spawnDirection *
-            spawnMagnitude, ForceMode.VelocityChange);
-        if (updateTime)
-        {
-            spawn.UpdateSpawnTime();
-        }
-        timeSinceLastSpawn = 0;
-    }
-
-    private void Dissipate()
-    {
-        Destroy(gameObject);
-    }
-
-    private Vector3 GenerateIdealSpawnDirection(int numSamples)
-    {
-        return Vector3.zero;
-    }
-
-    private IEnumerator ExecuteSpawnSequence()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(4);
-            float spawnerStartTime = Time.time;
-            Vector3 spawnDirection = new Vector3(Random.Range(-1f, 1f),
-                0, Random.Range(-1f, 1f)).normalized;
-            float spawnMagnitude = Random.Range(4f, 6f);
-            GameObject spawnCharacter = Instantiate(spawnSequence[0].ObjectToSpawn);
-            Rigidbody spawnCharacterRbody = spawnCharacter
-                .GetComponentInChildren<Rigidbody>();
-            yield return null;
-            spawnCharacterRbody.AddForce(spawnDirection *
-                spawnMagnitude, ForceMode.VelocityChange);
-        }
-    }
-
-    private IEnumerator SpawnPeriodically()
-    {
-        float startTime = Time.time;
-        while (true)
-        {
-            foreach (Spawn spawn in spawnSequence)
+            float angleRads = 45 * i * Mathf.Deg2Rad;
+            Vector3 direction = new Vector3(Mathf.Cos(angleRads), 
+                0, Mathf.Sin(angleRads));
+            Ray collCheckRay = new Ray(transform.position, direction);
+            RaycastHit[] rayHits = Physics.RaycastAll(collCheckRay,
+                collisionCheckRange, playerLayerMask);
+            rayCollisionCounts.Add(collCheckRay, rayHits.Length);
+            //add bias for walls
+            foreach (RaycastHit rayhit in rayHits)
             {
-                if (Time.time - startTime >= spawn.SpawnTime && timeSinceLastSpawn >= 0.5f)
+                if (rayhit.collider.tag == Tags.WALL_TAG)
                 {
-                    SpawnEnemy(spawn, true);
+                    rayCollisionCounts[collCheckRay] += 9;
                     break;
                 }
             }
-            yield return null;
         }
+        //cast a random ray numRandomSamples times
+        for (int i = 0; i < numRandomSamples; i++)
+        {
+            Vector3 direction = GetRandomLaunchDirection();
+            Ray collCheckRay = new Ray(transform.position, direction);
+            RaycastHit[] rayHits = Physics.RaycastAll(collCheckRay, 
+                collisionCheckRange, playerLayerMask);
+            rayCollisionCounts.Add(collCheckRay, rayHits.Length);
+            //add bias for walls
+            foreach (RaycastHit rayhit in rayHits)
+            {
+                if (rayhit.collider.tag == Tags.WALL_TAG)
+                {
+                    rayCollisionCounts[collCheckRay] += 9;
+                    break;
+                }
+            }
+        }
+        //select rays with lowest number of collisions
+        List<KeyValuePair<Ray, int>> bestRayCounts = new List<KeyValuePair<Ray, int>>();
+        foreach (KeyValuePair<Ray, int> rayCollCount in rayCollisionCounts)
+        {
+            if (bestRayCounts.Count == 0 || 
+                rayCollCount.Value == bestRayCounts[0].Value)
+            {
+                bestRayCounts.Add(rayCollCount);
+            }
+            else if (rayCollCount.Value < bestRayCounts[0].Value)
+            {
+                bestRayCounts.Clear();
+                bestRayCounts.Add(rayCollCount);
+            }
+        }
+        //pick random direction from selection
+        Vector3 launchDirection = bestRayCounts[Random.Range(
+            0, bestRayCounts.Count)].Key.direction;
+        //direction should have y of 0
+        return new Vector3(launchDirection.x, 0, launchDirection.z);
     }
 
-    private IEnumerator DemoSpawnSequence()
+    protected Vector3 GetRandomLaunchDirection()
     {
-        while (!Input.GetKeyDown(KeyCode.Return))
-        {
-            yield return null;
-        }
-        for (int i = 0; i < 3; i++)
-        {
-            SpawnEnemy(spawnSequence[0], false);
-            yield return new WaitForSeconds(0.5f);
-        }
-        yield return new WaitForSeconds(3);
-        while (!Input.GetKeyDown(KeyCode.Return))
-        {
-            yield return null;
-        }
-        for (int i = 0; i < 2; i++)
-        {
-            SpawnEnemy(spawnSequence[1], false);
-            yield return new WaitForSeconds(0.5f);
-        }
-        yield return new WaitForSeconds(3);
-        while (!Input.GetKeyDown(KeyCode.Return))
-        {
-            yield return null;
-        }
-        for (int i = 0; i < 2; i++)
-        {
-            SpawnEnemy(spawnSequence[2], false);
-            yield return new WaitForSeconds(1);
-        }
-        yield return new WaitForSeconds(3);
-        while (!Input.GetKeyDown(KeyCode.Return))
-        {
-            yield return null;
-        }
-        SpawnEnemy(spawnSequence[3], false);
-        yield return new WaitForSeconds(3);
-        while (!Input.GetKeyDown(KeyCode.Return))
-        {
-            yield return null;
-        }
-        SpawnEnemy(spawnSequence[4], false);
-        yield return new WaitForSeconds(3);
-        while (!Input.GetKeyDown(KeyCode.Return))
-        {
-            yield return null;
-        }
-        music.gameObject.SetActive(true);
-        StartCoroutine(SpawnPeriodically());
+        return new Vector3(Random.Range(-1f, 1f), 0,
+            Random.Range(-1f, 1f)).normalized;
+    }
+
+    /*private void OnDrawGizmos()
+    {
+        Vector3 launchDirection = GetIdealRandomLaunchDirection(20, 20) * 20;
+        Gizmos.DrawRay(transform.position, launchDirection);
+    }*/
+
+    private IEnumerator DissipateAfterSecondsCR(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        Dissipate();
     }
 }

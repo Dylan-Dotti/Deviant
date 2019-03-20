@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DamagePlayerOnContact : MonoBehaviour
 {
@@ -23,9 +21,25 @@ public class DamagePlayerOnContact : MonoBehaviour
         timeSinceDamagingPlayer += Time.deltaTime;
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.tag == Tags.PLAYER_BODY_TAG)
+        {
+            AttemptDamagePlayer();
+        }
+    }
+
     private void OnCollisionStay(Collision collision)
     {
         if (collision.collider.tag == Tags.PLAYER_BODY_TAG)
+        {
+            AttemptDamagePlayer();
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == Tags.PLAYER_BODY_TAG)
         {
             AttemptDamagePlayer();
         }

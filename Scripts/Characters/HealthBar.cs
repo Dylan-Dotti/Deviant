@@ -86,6 +86,10 @@ public class HealthBar : MonoBehaviour
                 (redLerpStartPercentage - redLerpEndPercentage);
             healthBarForeground.color = Vector4.Lerp(yellowColor, redColor, lerpPercentage);
         }
+        else if (percentage < redLerpEndPercentage)
+        {
+            healthBarForeground.color = redColor;
+        }
         //fade out
         if (fadeEnabled)
         {

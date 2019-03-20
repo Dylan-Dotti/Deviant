@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class FirePointShift : MonoBehaviour
 {
@@ -19,8 +17,8 @@ public class FirePointShift : MonoBehaviour
     private void FixedUpdate()
     {
         Vector3 shiftVector = new Vector2(pController.
-            TotalLocalVelocity.x, pController.TotalLocalVelocity.z);
-        shiftVector = Vector3.ClampMagnitude(shiftVector * 0.5f, maxShiftMagnitude);
-        transform.localPosition = -shiftVector;
+            TotalLocalVelocity.x, pController.TotalLocalVelocity.z) * 0.33f;
+        shiftVector = Vector3.ClampMagnitude(shiftVector, maxShiftMagnitude);
+        transform.localPosition = startLocalPos - shiftVector;
     }
 }

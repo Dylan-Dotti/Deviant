@@ -1,20 +1,27 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public bool KeyboardInputEnabled { get; set; } = true;
+    public bool PlayerInputEnabled { get; set; } = true;
     public bool MovementEnabled { get; set; } = true;
     public bool MouseRotateEnabled { get; set; } = true;
     public bool WeaponEnabled { get; set; } = true;
     public bool BoostEnabled { get; set; } = true;
 
-    public float Acceleration { get { return acceleration; } set { acceleration = value; } }
-    public float Drag { get { return drag; } set { drag = value; } }
+    public float Acceleration
+    {
+        get => acceleration;
+        set => acceleration = value;
+    }
+    public float Drag
+    {
+        get => drag;
+        set => drag = value;
+    }
 
-    public Vector3 MoveVelocity { get { return playerVelocityModifier.Velocity; } }
-    public Vector3 TotalVelocity { get { return rBody.velocity; } }
+    public Vector3 MoveVelocity { get => playerVelocityModifier.Velocity; }
+    public Vector3 TotalVelocity { get => rBody.velocity; }
     public Vector3 TotalLocalVelocity
     {
         get
@@ -26,12 +33,14 @@ public class PlayerController : MonoBehaviour
     }
     public float MaxVelocityMagnitude
     {
-        get { return playerVelocityModifier.MaxMagnitude; }
-        set { playerVelocityModifier.MaxMagnitude = value; }
+        get => playerVelocityModifier.MaxMagnitude;
+        set => playerVelocityModifier.MaxMagnitude = value;
     }
 
+    public Boost Boost { get; private set; }
+
     [SerializeField]
-    private Weapon playerWeapon;
+    private List<Weapon> playerWeapons;
 
     [SerializeField]
     private float acceleration = 8f;
@@ -45,15 +54,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private LerpRotationToTarget rotator;
 
-    private Boost boost;
+    private Weapon equippedWeapon;
     private Rigidbody rBody;
 
     private void Awake()
     {
-        boost = GetComponent<Boost>();
+        Boost = GetComponent<Boost>();
         rBody = GetComponent<Rigidbody>();
         vModifiers = new HashSet<VelocityModifier>();
         AddVelocityModifier(playerVelocityModifier);
+        Application.targetFrameRate = 60;
+        EquipWeapon(playerWeapons[0]);
     }
 
     private void Update()
@@ -61,7 +72,7 @@ public class PlayerController : MonoBehaviour
         //print framerate
         //Debug.Log(1 / Time.deltaTime);
 
-        if (KeyboardInputEnabled)
+        if (PlayerInputEnabled)
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -72,12 +83,14 @@ public class PlayerController : MonoBehaviour
             {
                 UpgradeMenu.Instance.enabled = true;
             }
+            SwitchWeapons();
         }
     }
 
     private void FixedUpdate()
     {
-        if (KeyboardInputEnabled)
+        ApplyDrag();
+        if (PlayerInputEnabled)
         {
             if (MovementEnabled)
             {
@@ -96,13 +109,13 @@ public class PlayerController : MonoBehaviour
 
     public void ResetMovement()
     {
-        boost.CancelBoost();
+        Boost.CancelBoost();
         playerVelocityModifier.Velocity = Vector3.zero;
     }
 
     public void CancelBoost()
     {
-        boost.CancelBoost();
+        Boost.CancelBoost();
     }
 
     public bool AddVelocityModifier(VelocityModifier modifier)
@@ -123,24 +136,40 @@ public class PlayerController : MonoBehaviour
 
         if (BoostEnabled && Input.GetKeyDown(KeyCode.Space))
         {
-            boost.AttemptBoost(moveDirection);
+            Boost.AttemptBoost(moveDirection);
         }
 
-        Vector3 newVelocity = playerVelocityModifier.Velocity + moveDirection * Acceleration * Time.fixedDeltaTime;
-        if (newVelocity.magnitude > 0)
-        {
-            float dragMagnitude = Mathf.Clamp(Mathf.Pow(playerVelocityModifier.Velocity.magnitude / 
-                playerVelocityModifier.MaxMagnitude, 2) * Drag, 0.15f * Drag, Drag);
-            Vector3 dragVelocity = -newVelocity.normalized * dragMagnitude * Time.fixedDeltaTime;
-            float newX = newVelocity.x > 0 ?
-                Mathf.Max(newVelocity.x + dragVelocity.x, 0) :
-                Mathf.Min(newVelocity.x + dragVelocity.x, 0);
-            float newZ = newVelocity.z > 0 ?
-                Mathf.Max(newVelocity.z + dragVelocity.z, 0) :
-                Mathf.Min(newVelocity.z + dragVelocity.z, 0);
-            newVelocity = new Vector3(newX, 0, newZ);
-        }
+        Vector3 newVelocity = playerVelocityModifier.Velocity + 
+            moveDirection * Acceleration * Time.fixedDeltaTime;
         playerVelocityModifier.Velocity = newVelocity;
+
+        rBody.velocity = Vector3.zero;
+        foreach (VelocityModifier modifier in vModifiers)
+        {
+            rBody.velocity += modifier.Velocity;
+        }
+    }
+
+    //optimize this
+    private void ApplyDrag()
+    {
+        Vector3 playerVelocity = MoveVelocity;
+        if (playerVelocity.magnitude > 0)
+        {
+            float dragMagnitude = Mathf.Clamp(Mathf.Pow(
+                playerVelocityModifier.Velocity.magnitude / 
+                playerVelocityModifier.MaxMagnitude, 2) * Drag, 0.15f * Drag, Drag);
+            Vector3 dragVelocity = -playerVelocity.normalized * 
+                dragMagnitude * Time.fixedDeltaTime;
+
+            float newX = playerVelocity.x > 0 ?
+                Mathf.Max(playerVelocity.x + dragVelocity.x, 0) :
+                Mathf.Min(playerVelocity.x + dragVelocity.x, 0);
+            float newZ = playerVelocity.z > 0 ?
+                Mathf.Max(playerVelocity.z + dragVelocity.z, 0) :
+                Mathf.Min(playerVelocity.z + dragVelocity.z, 0);
+            playerVelocityModifier.Velocity = new Vector3(newX, 0, newZ);
+        }
 
         rBody.velocity = Vector3.zero;
         foreach (VelocityModifier modifier in vModifiers)
@@ -158,14 +187,38 @@ public class PlayerController : MonoBehaviour
     private void RotateWeapon()
     {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        playerWeapon.TurnToFace(mousePos);
+        equippedWeapon.TurnToFace(mousePos);
     }
 
     private void FireWeapon()
     {
         if (Input.GetMouseButton(0))
         {
-            playerWeapon.AttemptFireWeapon();
+            equippedWeapon.AttemptFireWeapon();
+        }
+    }
+
+    private void SwitchWeapons()
+    {
+        Weapon newWeapon = null;
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            newWeapon = playerWeapons[0];
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            newWeapon = playerWeapons[1];
+        }
+        EquipWeapon(newWeapon);
+    }
+
+    private void EquipWeapon(Weapon newWeapon)
+    {
+        if (newWeapon != null && equippedWeapon != newWeapon)
+        {
+            equippedWeapon?.gameObject.SetActive(false);
+            equippedWeapon = newWeapon;
+            equippedWeapon.gameObject.SetActive(true);
         }
     }
 }

@@ -25,7 +25,6 @@ public class DamagedEffect : MonoBehaviour
             if (monitoredHealth.HealthPercentage <= effect.healthPercentThreshold &&
                 !effect.particles.isPlaying)
             {
-                Debug.Log(monitoredHealth.HealthPercentage);
                 effect.particles.Play();
             }
         }

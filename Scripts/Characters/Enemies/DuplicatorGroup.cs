@@ -64,7 +64,7 @@ public class DuplicatorGroup : MonoBehaviour
         duplicationCharges.Remove(charge);
         Duplicator progenitor = duplicators[0];
         Duplicator clone = progenitor.Duplicate();
-        clone.transform.parent = transform;
+        //clone.transform.parent = transform;
         duplicators.Add(clone);
         duplicators.Remove(progenitor);
         duplicators.Add(progenitor);
@@ -104,7 +104,7 @@ public class DuplicatorGroup : MonoBehaviour
         {
             duplicators.Remove(duplicator);
             duplicator.transform.parent = null;
-            if (transform.childCount == 0)
+            if (duplicators.Count == 0)
             {
                 Destroy(gameObject);
             }

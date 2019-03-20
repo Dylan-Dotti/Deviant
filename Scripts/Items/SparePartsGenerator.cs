@@ -5,6 +5,8 @@ using UnityEngine;
 public class SparePartsGenerator : MonoBehaviour
 {
     [SerializeField]
+    private EnemyType sparePartsPoolType;
+    [SerializeField]
     private List<SparePart> sparePartPrefabs;
     [SerializeField]
     private IntRange valuePerPartRange = new IntRange(1, 1);
@@ -12,14 +14,6 @@ public class SparePartsGenerator : MonoBehaviour
     private IntRange numPartsRange = new IntRange(1, 1);
     [SerializeField]
     private FloatRange spawnVelMagnitudeRange = new FloatRange(1f, 1f);
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            GenerateSpareParts();
-        }
-    }
 
     public void GenerateSpareParts()
     {

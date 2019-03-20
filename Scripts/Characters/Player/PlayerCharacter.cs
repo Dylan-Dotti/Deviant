@@ -11,8 +11,8 @@ public sealed class PlayerCharacter : Character
     //public PlayerUpgrades Upgrades { get; private set; }
     public int NumSpareParts
     {
-        get { return numSpareParts; }
-        set { numSpareParts = Mathf.Max(0, value); }
+        get => numSpareParts;
+        set => numSpareParts = Mathf.Max(0, value);
     }
 
     private int numSpareParts;
@@ -43,11 +43,12 @@ public sealed class PlayerCharacter : Character
     private void Start()
     {
         PlayerSpawnEvent?.Invoke(this);
+        NumSpareParts = 100;
     }
 
     public override void Die()
     {
-        //Controller.KeyboardInputEnabled = false;
+        Controller.PlayerInputEnabled = false;
         Controller.ResetMovement();
         Controller.enabled = false;
         GetComponent<Rigidbody>().velocity = Vector3.zero;

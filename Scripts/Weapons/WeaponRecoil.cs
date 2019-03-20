@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(Weapon))]
 public class WeaponRecoil : MonoBehaviour
 {
     [SerializeField]
@@ -12,17 +13,26 @@ public class WeaponRecoil : MonoBehaviour
     [SerializeField]
     private float recoilCooldown;
 
+    private Weapon weapon;
     private Vector3 recoilResetPos;
     private float timeSinceLastRecoil;
 
-    private void Start()
+    private void Awake()
     {
+        weapon = GetComponent<Weapon>();
         recoilResetPos = transform.localPosition;
-        if (recoilCooldown == 0)
-        {
-            enabled = false;
-        }
+    }
+
+    private void OnEnable()
+    {
+        weapon.WeaponFiredEvent += AttemptRecoil;
         StartCoroutine(RecoilRecover());
+    }
+
+    private void OnDisable()
+    {
+        weapon.WeaponFiredEvent -= AttemptRecoil;
+        StopAllCoroutines();
     }
 
     private void Update()

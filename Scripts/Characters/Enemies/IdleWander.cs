@@ -104,4 +104,9 @@ public class IdleWander : MonoBehaviour
             IsWandering = false;
         }
     }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, WanderRadius);
+    }
 }

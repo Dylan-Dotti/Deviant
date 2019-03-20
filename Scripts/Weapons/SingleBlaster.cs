@@ -2,23 +2,30 @@
 
 public abstract class SingleBlaster : Weapon
 {
+    public IntRange ProjectileDmgRange
+    {
+        get => projectileDamageRange;
+        set => projectileDamageRange = value;
+    }
+
     [SerializeField]
     protected Transform firePoint;
     [SerializeField]
     protected ParticleSystem fireParticles;
 
+    [SerializeField]
+    private IntRange projectileDamageRange = new IntRange(1, 1);
+
     protected ProjectilePool projectilePool;
 
-    private WeaponRecoil recoiler;
     private AudioSource fireSound;
 
-    private void Awake()
+    protected virtual void Awake()
     {
-        recoiler = GetComponent<WeaponRecoil>();
         fireSound = GetComponent<AudioSource>();
     }
 
-    private void Start()
+    protected override void Start()
     {
         InitProjectilePool();
     }
@@ -27,12 +34,15 @@ public abstract class SingleBlaster : Weapon
     {
         base.FireWeapon();
         Projectile projectile = projectilePool.Get();
+        projectile.DamageRange = ProjectileDmgRange;
         Rigidbody projectileRBody = projectile.GetComponent<Rigidbody>();
         projectile.transform.position = firePoint.position;
         projectile.transform.rotation = firePoint.rotation;
         projectile.gameObject.SetActive(true);
-        recoiler.AttemptRecoil();
-        fireSound?.PlayOneShot(fireSound.clip);
+        if (fireSound != null)
+        {
+            fireSound?.PlayOneShot(fireSound.clip);
+        }
         fireParticles.Play();
     }
 

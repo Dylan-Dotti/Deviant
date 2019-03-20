@@ -35,9 +35,14 @@ public class Vortex : Enemy
         magnet.enabled = false;
     }
 
-    public void InitSpawnSequence(Vector3 targetPos)
+    public void MoveToPosition(Vector3 targetPos)
     {
         StartCoroutine(LerpToPosition(targetPos));
+    }
+
+    protected override IEnumerator SpawnSequence()
+    {
+        yield return null;
     }
 
     private IEnumerator LerpToPosition(Vector3 targetPos)

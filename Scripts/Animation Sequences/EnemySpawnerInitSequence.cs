@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
-[RequireComponent(typeof(EnemySpawner))]
+[RequireComponent(typeof(EnemySpawnerPeriodic))]
 public class EnemySpawnerInitSequence : AnimationSequence
 {
     [SerializeField]
@@ -17,7 +18,9 @@ public class EnemySpawnerInitSequence : AnimationSequence
     [SerializeField]
     private SphereCollider damageCollider;
     [SerializeField]
-    private SphereCollider knockbackCollider;
+    private SphereCollider playerKnockbackCollider;
+    [SerializeField]
+    private SphereCollider enemyRepulsionCollider;
     [SerializeField]
     private PlayerMagnet magnet;
     [SerializeField]
@@ -41,8 +44,8 @@ public class EnemySpawnerInitSequence : AnimationSequence
         //init radius variables
         float origDmgColliderRadius = damageCollider.radius;
         damageCollider.radius = 0;
-        float origKbColliderRadius = knockbackCollider.radius;
-        knockbackCollider.radius = 0;
+        float origKbColliderRadius = playerKnockbackCollider.radius;
+        playerKnockbackCollider.radius = 0;
         FloatRange origFalloffRadiusRange = magnet.FalloffRadiusRange;
         magnet.FalloffRadiusRange = new FloatRange(0, 0);
 
@@ -52,6 +55,7 @@ public class EnemySpawnerInitSequence : AnimationSequence
             circleParticles.main.simulationSpeed);
 
         //2. Implosion and Central buildup
+        enemyRepulsionCollider.enabled = true;
         float centerExpandStartTime = Time.time;
         implosionParticles.Play();
         yield return new WaitForSeconds(0.75f);
@@ -62,13 +66,13 @@ public class EnemySpawnerInitSequence : AnimationSequence
         //expand the center collider and magnet with the center particle effect,
         //lerp simulation speed of center particle effect
         damageCollider.enabled = true;
-        knockbackCollider.enabled = true;
+        playerKnockbackCollider.enabled = true;
         magnet.enabled = true;
         while (implosionParticles.isPlaying)
         {
             float lerpPercentage = (Time.time - centerExpandStartTime) / 3f;
             damageCollider.radius = Mathf.Lerp(0, 1.55f, lerpPercentage);
-            knockbackCollider.radius = Mathf.Lerp(0, origKbColliderRadius, lerpPercentage);
+            playerKnockbackCollider.radius = Mathf.Lerp(0, origKbColliderRadius, lerpPercentage);
             float minRadius = Mathf.Lerp(0, origFalloffRadiusRange.Min, lerpPercentage);
             magnet.FalloffRadiusRange = new FloatRange(minRadius, minRadius);
             centralParticlesMain.simulationSpeed = Mathf.Lerp(centerSimSpeedRange.Min,
@@ -85,6 +89,7 @@ public class EnemySpawnerInitSequence : AnimationSequence
         yield return new WaitForSeconds(1.25f);
 
         //4. Completion
+        GetComponent<NavMeshObstacle>().enabled = true;
         radiationParticles.Play();
         //expand center collider and magnet with emission particles
         centerExpandStartTime = Time.time;
@@ -99,7 +104,7 @@ public class EnemySpawnerInitSequence : AnimationSequence
             yield return null;
         }
         IsPlaying = false;
-        GetComponent<EnemySpawner>().enabled = true;
+        GetComponent<EnemySpawnerPeriodic>().enabled = true;
         Destroy(this);
     }
 }

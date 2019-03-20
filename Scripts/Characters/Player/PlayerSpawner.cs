@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerSpawner : MonoBehaviour
+public class PlayerSpawner : AnimationSequence
 {
     [SerializeField]
     private GameObject playerBody;
@@ -31,12 +31,12 @@ public class PlayerSpawner : MonoBehaviour
     {
         playerBody.SetActive(false);
         playerUI.SetActive(false);
-        StartCoroutine(SpawnPlayer());
+        StartCoroutine(PlayAnimationSequence());
     }
 
-    private IEnumerator SpawnPlayer()
+    protected override IEnumerator PlayAnimationSequence()
     {
-        pController.KeyboardInputEnabled = false;
+        pController.PlayerInputEnabled = false;
         implosionParticles.Play();
         yield return new WaitForSeconds(0.75f);
         centralParticles.Play();
@@ -59,7 +59,8 @@ public class PlayerSpawner : MonoBehaviour
         explosionParticles.Play();
         playerBody.SetActive(true);
         playerUI.SetActive(true);
-        pController.KeyboardInputEnabled = true;
+        pController.PlayerInputEnabled = true;
         //enemySpawnerInit.enabled = true;
+        Destroy(this);
     }
 }

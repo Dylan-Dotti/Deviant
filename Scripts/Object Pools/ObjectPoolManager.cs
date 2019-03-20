@@ -1,8 +1,6 @@
 ﻿using System;
 using UnityEngine;
 
-// issues with assigning global object pools to intended users on spawn;
-// here's the solution
 public class ObjectPoolManager : MonoBehaviour
 {
     public enum ProjectileType { Player, RangedDrone }
@@ -21,6 +19,21 @@ public class ObjectPoolManager : MonoBehaviour
     private DamageNumberPool playerDamageNumberPool;
     [SerializeField]
     private DamageNumberPool rangedDroneDamageNumberPool;
+
+    [Header("Spare Part Pools")]
+    [SerializeField]
+    private SparePartPool seekerMinePartsPool;
+    [SerializeField]
+    private SparePartPool duplicatorPartsPool;
+    [SerializeField]
+    private SparePartPool vortexSpawnerPartsPool;
+    [SerializeField]
+    private SparePartPool rangedDronePartsPool;
+    [SerializeField]
+    private SparePartPool laserDronePartsPool;
+    [SerializeField]
+    private SparePartPool laserCubePartsPool;
+
 
     private void Awake()
     {
@@ -54,5 +67,31 @@ public class ObjectPoolManager : MonoBehaviour
             default:
                 return null;
         }
+    }
+
+    public SparePartPool GetSparePartsPool(EnemyType enemyType)
+    {
+        switch (enemyType)
+        {
+            case EnemyType.SeekerMine:
+                return seekerMinePartsPool;
+            case EnemyType.Duplicator:
+                return duplicatorPartsPool;
+            case EnemyType.VortexSpawner:
+                return vortexSpawnerPartsPool;
+            case EnemyType.RangedDrone:
+                return rangedDronePartsPool;
+            case EnemyType.LaserDrone:
+                return laserDronePartsPool;
+            case EnemyType.LaserCube:
+                return laserCubePartsPool;
+            default:
+                return null;
+        }
+    }
+
+    public SparePartPool GetSparePartPool()
+    {
+        return null;
     }
 }

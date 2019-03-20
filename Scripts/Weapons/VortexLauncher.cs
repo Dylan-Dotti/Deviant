@@ -21,6 +21,6 @@ public class VortexLauncher : Weapon
         Vortex vortex = Instantiate(vortexPrefab);
         vortex.transform.position = transform.position;
         Vector3 targetPos = launchDirection * Random.Range(6f, 9f);
-        vortex.InitSpawnSequence(targetPos);
+        vortex.MoveToPosition(targetPos);
     }
 }

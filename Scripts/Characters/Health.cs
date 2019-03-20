@@ -7,7 +7,7 @@ public class Health : MonoBehaviour
     public HealthChangedDelegate HealthChangedEvent;
     public HealthChangedDelegate HealthReachedZeroEvent;
 
-    public bool CanReceiveDamage { get; set; }
+    public bool CanReceiveDamage { get; set; } = true;
 
     public int MaxHealth
     {
@@ -35,7 +35,7 @@ public class Health : MonoBehaviour
                 currentHealth = Mathf.Min(Mathf.Max(0, value), maxHealth);
                 if (currentHealth != prevHealth)
                 {
-                    healthBar?.SetHealthPercentage(HealthPercentage);
+                    healthBar.SetHealthPercentage(HealthPercentage);
                     if (currentHealth == 0) HealthReachedZeroEvent?.Invoke(prevHealth, currentHealth);
                     else HealthChangedEvent?.Invoke(prevHealth, currentHealth);
                 }
@@ -56,6 +56,5 @@ public class Health : MonoBehaviour
     private void Awake()
     {
         currentHealth = maxHealth;
-        CanReceiveDamage = true;
     }
 }

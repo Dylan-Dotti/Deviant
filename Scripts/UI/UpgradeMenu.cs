@@ -1,13 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class UpgradeMenu : MonoBehaviour
 {
     public static UpgradeMenu Instance { get; private set; }
-
-    [SerializeField]
-    private GameObject partialRepairPanel;
 
     private PlayerController pController;
     private List<GameObject> menus;
@@ -29,8 +25,7 @@ public class UpgradeMenu : MonoBehaviour
 
     private void OnEnable()
     {
-        pController.WeaponEnabled = false;
-        pController.MouseRotateEnabled = false;
+        pController.PlayerInputEnabled = false;
         Camera.main.GetComponent<CameraZoom>().enabled = false;
         foreach (GameObject childMenu in menus)
         {
@@ -40,8 +35,7 @@ public class UpgradeMenu : MonoBehaviour
 
     private void OnDisable()
     {
-        pController.WeaponEnabled = true;
-        pController.MouseRotateEnabled = true;
+        pController.PlayerInputEnabled = true;
         Camera.main.GetComponent<CameraZoom>().enabled = true;
         foreach (GameObject childMenu in menus)
         {
@@ -56,5 +50,15 @@ public class UpgradeMenu : MonoBehaviour
         {
             enabled = false;
         }
+    }
+
+    public void Activate()
+    {
+        enabled = true;
+    }
+
+    public void Deactivate()
+    {
+        enabled = false;
     }
 }

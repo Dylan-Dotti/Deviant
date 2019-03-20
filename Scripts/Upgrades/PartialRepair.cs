@@ -1,38 +1,17 @@
 ﻿using UnityEngine;
 
-public class PartialRepair : PlayerUpgrade
+public class PartialRepair : FullRepair
 {
     public override int Cost
     {
-        get
-        {
-            return Mathf.Min(cost, playerHealth.MaxHealth -
+        get => Mathf.Min(base.Cost, playerHealth.MaxHealth -
                 playerHealth.CurrentHealth);
-        }
-    }
-
-    [SerializeField]
-    private int repairPerCost = 1;
-
-    private Health playerHealth;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        playerHealth = PlayerCharacter.Instance.CharacterHealth;
     }
 
     protected override void Update()
     {
-        base.Update();
-        string repairCostStr = (Cost * repairPerCost).ToString();
-        descriptionText.text = "Repair " + repairCostStr +
+        description = "Repair " + Cost.ToString() +
             " damage from your combat frame";
-    }
-
-    public override void ApplyUpgrade()
-    {
-        base.ApplyUpgrade();
-        playerHealth.CurrentHealth += Cost * repairPerCost;
+        base.Update();
     }
 }

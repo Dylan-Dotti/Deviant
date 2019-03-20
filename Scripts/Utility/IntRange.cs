@@ -3,8 +3,9 @@
 [System.Serializable]
 public class IntRange
 {
-    public int Min { get { return min; } }
-    public int Max { get { return max; } }
+    public int Min => min;
+    public int Max => max;
+    public int RandomRangeValue => Random.Range(min, max + 1);
 
     [SerializeField]
     private int min;
@@ -15,5 +16,15 @@ public class IntRange
     {
         min = minVal;
         max = maxVal;
+    }
+
+    public static IntRange operator+ (IntRange a, IntRange b)
+    {
+        return new IntRange(a.min + b.min, a.max + b.max);
+    }
+
+    public static IntRange operator- (IntRange a, IntRange b)
+    {
+        return new IntRange(a.min - b.min, a.max - b.max);
     }
 }

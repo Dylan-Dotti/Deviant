@@ -9,10 +9,10 @@ public abstract class Projectile : MonoBehaviour, IPoolable<Projectile>
         get { return moveSpeed; }
         set { moveSpeed = value; }
     }
-    public IntRange DamageAmountRange
+    public IntRange DamageRange
     {
-        get { return damageAmountRange; }
-        set { damageAmountRange = value; }
+        get { return damageRange; }
+        set { damageRange = value; }
     }
 
     public ObjectPool<Projectile> Pool { get; set; }
@@ -23,7 +23,7 @@ public abstract class Projectile : MonoBehaviour, IPoolable<Projectile>
     [SerializeField]
     private float moveSpeed = 10f;
     [SerializeField]
-    private IntRange damageAmountRange = new IntRange(1, 1);
+    private IntRange damageRange = new IntRange(1, 1);
 
     [SerializeField]
     private GameObject projectileBody;
@@ -42,8 +42,8 @@ public abstract class Projectile : MonoBehaviour, IPoolable<Projectile>
             Character hitTarget = other.GetComponentInParent<Character>();
             if (hitTarget != null)
             {
-                int damage = Random.Range(DamageAmountRange.Min,
-                    DamageAmountRange.Max + 1);
+                int damage = Random.Range(DamageRange.Min,
+                    DamageRange.Max + 1);
                 ApplyDamage(damage, hitTarget.CharacterHealth);
             }
             CancelReturnToPool();
@@ -72,8 +72,8 @@ public abstract class Projectile : MonoBehaviour, IPoolable<Projectile>
 
     protected virtual void ApplyDamage(int damageAmount, Health targetHealth)
     {
-        int damage = Random.Range(DamageAmountRange.Min, 
-            DamageAmountRange.Max + 1);
+        int damage = Random.Range(DamageRange.Min, 
+            DamageRange.Max + 1);
         targetHealth.CurrentHealth -= damage;
     }
 

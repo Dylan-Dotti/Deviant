@@ -57,11 +57,12 @@ public class SeekerMine : Enemy
         wanderBehavior = GetComponent<IdleWander>();
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         player = PlayerCharacter.Instance;
         StartCoroutine(LerpLightsToStatePeriodic());
-        StartCoroutine(SetDestinationPeriodic());
+        //StartCoroutine(SetDestinationPeriodic());
     }
 
     private void Update()
@@ -92,6 +93,18 @@ public class SeekerMine : Enemy
         StopAllCoroutines();
         navAgent.ResetPath();
         StartCoroutine(ShrinkAndExplode());
+    }
+
+    protected override IEnumerator SpawnSequence()
+    {
+        //Debug.Log("Seeker mine init");
+        yield return new WaitForSeconds(1.25f);
+        navAgent.enabled = true;
+        //Debug.Log("NavAgent enabled");
+        StartCoroutine(SetDestinationPeriodic());
+        yield return new WaitForSeconds(1.75f);
+        wanderBehavior.enabled = true;
+        //Debug.Log("Wander enabled");
     }
 
     private IEnumerator SetDestinationPeriodic()
@@ -173,6 +186,7 @@ public class SeekerMine : Enemy
         isLerping = false;
     }
 
+    //place in animation sequence class
     private IEnumerator ShrinkAndExplode()
     {
         //shrink

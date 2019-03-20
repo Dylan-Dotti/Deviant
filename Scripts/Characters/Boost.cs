@@ -3,6 +3,17 @@ using UnityEngine;
 
 public class Boost : MonoBehaviour
 {
+    public float Duration
+    {
+        get => boostSequenceDuration;
+        set => boostSequenceDuration = value;
+    }
+    public float ChargeCooldown
+    {
+        get => chargeCooldown;
+        set => chargeCooldown = value;
+    }
+    public int MaxNumCharges { get; set; } = 1;
     public bool IsBoosting { get; private set; }
 
     [SerializeField]
@@ -10,28 +21,36 @@ public class Boost : MonoBehaviour
     [SerializeField]
     private VelocityModifier boostVelocityModifier;
     [SerializeField]
-    private float boostCooldown = 5;
+    private float chargeCooldown = 5;
     [SerializeField]
     private ParticleSystem boostParticles;
 
+    private int currentNumCharges;
     private float timeSinceLastBoost;
     private PlayerController pController;
 
     private void Awake()
     {
         IsBoosting = false;
-        timeSinceLastBoost = boostCooldown;
+        currentNumCharges = MaxNumCharges;
+        timeSinceLastBoost = chargeCooldown;
         pController = PlayerCharacter.Instance.Controller;
     }
 
     private void Update()
     {
         timeSinceLastBoost += Time.deltaTime;
+        if (timeSinceLastBoost >= chargeCooldown && 
+            currentNumCharges < MaxNumCharges)
+        {
+            currentNumCharges += 1;
+            timeSinceLastBoost = 0;
+        }
     }
 
     public void AttemptBoost(Vector3 boostDirection)
     {
-        if (!IsBoosting && timeSinceLastBoost >= boostCooldown)
+        if (!IsBoosting && currentNumCharges > 0)
         {
             ActivateBoost(boostDirection);
         }
@@ -40,6 +59,7 @@ public class Boost : MonoBehaviour
     public void ActivateBoost(Vector3 boostDirection)
     {
         StartCoroutine(BoostSequence(boostDirection));
+        currentNumCharges = Mathf.Max(currentNumCharges - 1, 0);
         timeSinceLastBoost = 0;
     }
 

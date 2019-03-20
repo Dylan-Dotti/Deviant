@@ -2,6 +2,11 @@
 
 public abstract class Weapon : MonoBehaviour
 {
+    public delegate void WeaponDelegate();
+
+    public event WeaponDelegate WeaponFiredEvent;
+
+    //public virtual bool WeaponEnabled { get; set; } = true;
     public float TimeSinceLastFire { get; private set; }
     public float FireRate
     {
@@ -26,7 +31,7 @@ public abstract class Weapon : MonoBehaviour
 
     public virtual void AttemptFireWeapon()
     {
-        if (TimeSinceLastFire >= FireRate)
+        if (TimeSinceLastFire >= FireRate && enabled)
         {
             FireWeapon();
         }
@@ -34,6 +39,7 @@ public abstract class Weapon : MonoBehaviour
 
     public virtual void FireWeapon()
     {
+        WeaponFiredEvent?.Invoke();
         TimeSinceLastFire = 0;
     }
 

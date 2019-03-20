@@ -11,16 +11,19 @@ public class RangedDroneMultiBlaster : Weapon
     private float reloadInterval = 4;
     [SerializeField]
     private int maxAmmo = 25;
+
     private int currentAmmo;
     private WeaponRecoil recoiler;
+    private AudioSource fireSound;
 
     private void Awake()
     {
         recoiler = GetComponent<WeaponRecoil>();
+        fireSound = GetComponent<AudioSource>();
         currentAmmo = maxAmmo;
     }
 
-    private void Start()
+    protected override void Start()
     {
         StartCoroutine(RefreshAmmoPeriodically());
     }
@@ -36,6 +39,7 @@ public class RangedDroneMultiBlaster : Weapon
         {
             base.FireWeapon();
             recoiler.AttemptRecoil();
+            fireSound.PlayOneShot(fireSound.clip);
             int randIndex = Random.Range(0, blasters.Count);
             blasters[randIndex].FireWeapon();
             currentAmmo -= 1;

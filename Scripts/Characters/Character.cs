@@ -8,7 +8,7 @@ public abstract class Character : MonoBehaviour
 {
     public delegate void CharacterDelegate(Character character);
 
-    public Health CharacterHealth { get; protected set; }
+    public Health CharacterHealth { get; private set; }
 
     protected virtual void Awake()
     {
@@ -39,11 +39,13 @@ public abstract class Character : MonoBehaviour
         float shrinkStartTime = Time.time;
         while (Time.time - shrinkStartTime < duration)
         {
-            float lerpPercentage = Mathf.Min(Time.time - shrinkStartTime, duration) / duration;
+            float lerpPercentage = Mathf.Min(Time.time - shrinkStartTime, 
+                duration) / duration;
             foreach (Transform childTransform in lerpObjects)
             {
                 Vector3 origScale = originalScales[childTransform];
-                childTransform.transform.localScale = Vector3.Lerp(origScale, origScale * newScale, lerpPercentage);
+                childTransform.transform.localScale = Vector3.Lerp(origScale, 
+                    origScale * newScale, lerpPercentage);
             }
             yield return null;
         }

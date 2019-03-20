@@ -11,6 +11,16 @@ public class HealthDrain : MonoBehaviour
     [SerializeField]
     private int drainInterval;
 
+    private void OnEnable()
+    {
+        StartCoroutine(DrainHealth());
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+    }
+
     private IEnumerator DrainHealth()
     {
         while (true)
