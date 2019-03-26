@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class ImageColorLerp : Lerper
+public class ImageColorLerp : PercentageLerper
 {
     [SerializeField]
     private Color lerpColor;
@@ -10,25 +9,21 @@ public class ImageColorLerp : Lerper
     private Image image;
     private Color originalColor;
 
+    public override float CurrentLerpPercentage
+    {
+        get => Vector4InverseLerp(originalColor,
+            lerpColor, image.color);
+    }
+
+    protected override void UpdateLerpVariables(float lerpPercentage)
+    {
+        image.color = Color.Lerp(originalColor, 
+            lerpColor, lerpPercentage);
+    }
+
     private void Awake()
     {
         image = GetComponent<Image>();
         originalColor = image.color;
-    }
-
-    protected override IEnumerator LerpCR(bool forward, float duration)
-    {
-        //Debug.Log(duration);
-        Color startColor = image.color;
-        Color endColor = forward ? lerpColor : originalColor;
-        float startTime = Time.time;
-        for (float elapsed = 0; elapsed < duration;
-             elapsed = Time.time - startTime)
-        {
-            image.color = Color.Lerp(startColor, endColor, elapsed / duration);
-            yield return null;
-        }
-        image.color = endColor;
-        yield return StartCoroutine(base.LerpCR(forward, duration));
     }
 }

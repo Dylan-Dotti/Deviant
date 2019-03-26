@@ -197,7 +197,7 @@ public class SingleLaser : ToggleWeapon
     {
         duration = LerpWidthOverAdjustedDuration(LaserStartWidth,
             lerpEndWidth, duration);
-        yield return new WaitForSeconds(duration);
+        yield return new WaitForSeconds(duration - 0.25f);
         CancelFireWeapon();
     }
 }

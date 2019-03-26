@@ -27,20 +27,14 @@ public class UpgradeMenu : MonoBehaviour
     {
         pController.PlayerInputEnabled = false;
         Camera.main.GetComponent<CameraZoom>().enabled = false;
-        foreach (GameObject childMenu in menus)
-        {
-            childMenu.SetActive(true);
-        }
+        menus.ForEach(m => m.SetActive(true));
     }
 
     private void OnDisable()
     {
         pController.PlayerInputEnabled = true;
         Camera.main.GetComponent<CameraZoom>().enabled = true;
-        foreach (GameObject childMenu in menus)
-        {
-            childMenu.SetActive(false);
-        }
+        menus.ForEach(m => m.SetActive(false));
     }
 
     private void Update()
@@ -50,6 +44,12 @@ public class UpgradeMenu : MonoBehaviour
         {
             enabled = false;
         }
+    }
+
+    public void StartNextWave()
+    {
+        Deactivate();
+        WaveGenerator.Instance.StartNextWave();
     }
 
     public void Activate()

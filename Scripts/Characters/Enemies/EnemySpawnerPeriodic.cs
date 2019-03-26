@@ -46,7 +46,6 @@ public class EnemySpawnerPeriodic : EnemySpawner
         {
             enabled = false;
             DissipateAfterSeconds(3);
-            Debug.Log(name + " dispersing in 3 seconds");
         }
     }
 

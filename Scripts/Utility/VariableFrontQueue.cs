@@ -25,7 +25,7 @@ public class VariableFrontQueue<T>
         }
     }
 
-    public T Pop(int frontSize)
+    public T Dequeue(int frontSize)
     {
         frontSize = Mathf.Min(frontSize, list.Count);
         int randIndex = Random.Range(0, frontSize);
@@ -34,14 +34,14 @@ public class VariableFrontQueue<T>
         return item;
     }
 
-    public T PopAndCycle(int frontSize)
+    public T DequeueAndCycle(int frontSize)
     {
-        T item = Pop(frontSize);
-        Push(item);
+        T item = Dequeue(frontSize);
+        Enqueue(item);
         return item;
     }
 
-    public void Push(T item)
+    public void Enqueue(T item)
     {
         list.Add(item);
     }

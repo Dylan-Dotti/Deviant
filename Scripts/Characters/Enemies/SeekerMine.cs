@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,19 +8,29 @@ public class SeekerMine : Enemy
     public enum SeekerMineState { IDLE, WARN, SEEK }
 
     [SerializeField]
-    private float lightLerpDuration = 3f;
+    private float colorLerpDuration = 3f;
     private bool isLerping = false;
 
     [SerializeField]
     private List<Renderer> lightRenderers;
+    [SerializeField]
+    private List<Renderer> bodyRenderers;
 
     [Header("Light Materials")]
     [SerializeField]
-    private Material greenMaterial;
+    private Material greenLightMaterial;
     [SerializeField]
-    private Material orangeMaterial;
+    private Material orangeLightMaterial;
     [SerializeField]
-    private Material redMaterial;
+    private Material redLightMaterial;
+
+    [Header("Body Materials")]
+    [SerializeField]
+    private Material greenBodyMaterial;
+    [SerializeField]
+    private Material orangeBodyMaterial;
+    [SerializeField]
+    private Material redBodyMaterial;
 
     [Header("State Ranges")]
     [SerializeField]
@@ -92,19 +101,25 @@ public class SeekerMine : Enemy
         enabled = false;
         StopAllCoroutines();
         navAgent.ResetPath();
+        EnemyDeathEvent?.Invoke(this);
         StartCoroutine(ShrinkAndExplode());
+    }
+
+    protected override void OnPlayerDeath(Character c)
+    {
+        base.OnPlayerDeath(c);
+        combatState = SeekerMineState.IDLE;
+        navAgent.ResetPath();
+        enabled = false;
     }
 
     protected override IEnumerator SpawnSequence()
     {
-        //Debug.Log("Seeker mine init");
         yield return new WaitForSeconds(1.25f);
         navAgent.enabled = true;
-        //Debug.Log("NavAgent enabled");
         StartCoroutine(SetDestinationPeriodic());
         yield return new WaitForSeconds(1.75f);
         wanderBehavior.enabled = true;
-        //Debug.Log("Wander enabled");
     }
 
     private IEnumerator SetDestinationPeriodic()
@@ -123,7 +138,6 @@ public class SeekerMine : Enemy
             {
                 if (!wanderBehavior.enabled)
                 {
-                    //navAgent.acceleration = 10f;
                     navAgent.ResetPath();
                     wanderBehavior.EnableWander();
                 }
@@ -139,49 +153,52 @@ public class SeekerMine : Enemy
         {
             if (combatState != prevState && !isLerping)
             {
-                StartCoroutine(LerpLights());
+                StartCoroutine(LerpColors());
                 prevState = combatState;
             }
             yield return new WaitForSeconds(0.25f);
         }
     }
 
-    private IEnumerator LerpLights()
+    private IEnumerator LerpColors()
     {
         isLerping = true;
 
         //set up materials
-        Dictionary<Renderer, Material> lerpStartMaterials = lightRenderers.
-            ToDictionary(r => r, r => new Material(r.material));
-        Material lerpEndMaterial = null;
+        Material lightLerpStartMaterial = new Material(lightRenderers[0].material);
+        //Material bodyLerpStartMaterial = new Material(bodyRenderers[0].material);
+        Material lightLerpEndMaterial = null;
+        Material bodyLerpEndMaterial = null;
         switch (combatState)
         {
             case SeekerMineState.IDLE:
-                lerpEndMaterial = greenMaterial;
+                lightLerpEndMaterial = greenLightMaterial;
+                bodyLerpEndMaterial = greenBodyMaterial;
                 break;
             case SeekerMineState.WARN:
-                lerpEndMaterial = orangeMaterial;
+                lightLerpEndMaterial = orangeLightMaterial;
+                bodyLerpEndMaterial = orangeBodyMaterial;
                 break;
             case SeekerMineState.SEEK:
-                lerpEndMaterial = redMaterial;
+                lightLerpEndMaterial = redLightMaterial;
+                bodyLerpEndMaterial = redBodyMaterial;
                 break;
         }
 
         //lerp materials
         float lerpStartTime = Time.time;
-        while (Time.time - lerpStartTime < lightLerpDuration)
+        for (float elapsed = 0; elapsed <= colorLerpDuration;
+             elapsed = Time.time - lerpStartTime)
         {
-            float lerpPercentage = Mathf.Min(Time.time - lerpStartTime, lightLerpDuration) / lightLerpDuration;
-            foreach (Renderer lightRend in lerpStartMaterials.Keys)
-            {
-                lightRend.material.Lerp(lerpStartMaterials[lightRend], lerpEndMaterial, lerpPercentage);
-            }
+            float lerpPercentage = elapsed / colorLerpDuration;
+            lightRenderers.ForEach(rend => rend.material.Lerp(
+                lightLerpStartMaterial, lightLerpEndMaterial, lerpPercentage));
+            //bodyRenderers.ForEach(rend => rend.material.Lerp(
+                //bodyLerpStartMaterial, bodyLerpEndMaterial, lerpPercentage));
             yield return null;
         }
-        foreach (Renderer lightRend in lightRenderers)
-        {
-            lightRend.material = lerpEndMaterial;
-        }
+        lightRenderers.ForEach(rend => rend.material = lightLerpEndMaterial);
+        //bodyRenderers.ForEach(rend => rend.material = bodyLerpEndMaterial);
 
         isLerping = false;
     }
@@ -191,8 +208,8 @@ public class SeekerMine : Enemy
     {
         //shrink
         float shrinkDuration = 0.15f;
-        LerpScaleOverDuration(new List<Transform>(1) { bodyObject.transform }, 0.80f, shrinkDuration);
-        yield return new WaitForSeconds(shrinkDuration - 0.05f);
+        yield return LerpScaleOverDuration(new List<Transform> {
+            bodyObject.transform }, 0.80f, shrinkDuration);
 
         //explode
         float playerDist = Vector3.Distance(transform.position, player.transform.position);

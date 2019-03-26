@@ -1,20 +1,31 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TextColorLerp : Lerper
+public class TextColorLerp : PercentageLerper
 {
+    public override float CurrentLerpPercentage
+    {
+        get => Vector4InverseLerp(mainOriginalColor,
+            mainLerpColor, text.color);
+    }
+
     [SerializeField]
     private Color mainLerpColor;
+    //[SerializeField]
+    //private List<Color> mainLerpColors;
     [SerializeField]
     private Color outlineLerpColor;
+    //[SerializeField]
+    //private Color outlineLerpColors;
 
     private Color mainOriginalColor;
     private Color outlineOriginalColor;
 
     private Text text;
     private Outline outline;
+    private float mainPercentPerColor;
+    private float outlinePercentPerColor;
 
     private void Awake()
     {
@@ -22,27 +33,16 @@ public class TextColorLerp : Lerper
         outline = GetComponent<Outline>();
         mainOriginalColor = text.color;
         outlineOriginalColor = outline.effectColor;
+        //mainPercentPerColor = mainLerpColors.Count == 1 ?
+          //  1 : 1 / (mainLerpColors.Count - 1);
     }
 
-    protected override IEnumerator LerpCR(bool forward, float duration)
+    protected override void UpdateLerpVariables(float lerpPercentage)
     {
-        Color lerpMainStartColor = text.color;
-        Color lerpOutlineStartColor = outline.effectColor;
-        Color lerpMainEndColor = forward ? mainLerpColor : mainOriginalColor;
-        Color lerpOutlineEndColor = forward ? outlineLerpColor : outlineOriginalColor;
-        float startTime = Time.time;
-        for (float elapsed = 0; elapsed < duration;
-            elapsed = Time.time - startTime)
-        {
-            float lerpPercentage = elapsed / duration;
-            text.color = Vector4.Lerp(lerpMainStartColor,
-                lerpMainEndColor, lerpPercentage);
-            outline.effectColor = Vector4.Lerp(lerpOutlineStartColor,
-                lerpOutlineEndColor, lerpPercentage);
-            yield return null;
-        }
-        text.color = lerpMainEndColor;
-        outline.effectColor = lerpOutlineEndColor;
-        yield return StartCoroutine(base.LerpCR(forward, duration));
+
+        text.color = Vector4.Lerp(mainOriginalColor,
+            mainLerpColor, lerpPercentage);
+        outline.effectColor = Vector4.Lerp(outlineOriginalColor,
+            outlineLerpColor, lerpPercentage);
     }
 }

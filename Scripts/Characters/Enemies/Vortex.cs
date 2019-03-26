@@ -22,6 +22,7 @@ public class Vortex : Enemy
 
     public override void Die()
     {
+        EnemyDeathEvent?.Invoke(this);
         deathSequence.PlayAnimation();
     }
 

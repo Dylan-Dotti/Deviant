@@ -20,8 +20,9 @@ public class PlayerBlasterProjectile : Projectile
         if (targetHealth.CurrentHealth != 0)
         {
             DamageNumber dmgNumber = dmgNumPool.Get();
-            dmgNumber.SpawnAtPos(transform.position + Vector3.up, Mathf.Min(
-                targetHealth.CurrentHealth, damage));
+            dmgNumber.DamageText.text = Mathf.Min(targetHealth.
+                CurrentHealth, damage).ToString();
+            dmgNumber.SpawnAtPos(transform.position + Vector3.up);
         }
         base.ApplyDamage(damage, targetHealth);
     }

@@ -5,12 +5,13 @@ public abstract class AnimationSequence : MonoBehaviour
 {
     public bool IsPlaying { get; protected set; } = false;
 
-    public virtual void PlayAnimation()
+    public Coroutine PlayAnimation()
     {
         if (!IsPlaying)
         {
-            StartCoroutine(PlayAnimationSequence());
+            return StartCoroutine(PlayAnimationSequence());
         }
+        return null;
     }
 
     public virtual void CancelSequence()

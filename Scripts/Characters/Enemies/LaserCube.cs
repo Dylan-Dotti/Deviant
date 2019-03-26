@@ -10,7 +10,7 @@ public class LaserCube : Enemy
     [SerializeField]
     private float attackRange = 10;
     [SerializeField]
-    private float attackCooldown = 15;
+    private float attackCooldown = 12.5f;
     [SerializeField]
     private FloatRange quadLaserSequenceCooldown =
         new FloatRange(35, 40);
@@ -50,7 +50,6 @@ public class LaserCube : Enemy
             mode != CombatMode.QuadLaserSequence &&
             mode != CombatMode.SingleLaserSequence)
         {
-            Debug.Log("starting single laser attack");
             mode = CombatMode.SingleLaserSequence;
             StartCoroutine(SingleLaserSequenceCR());
             timeSinceLastAttack = 0;
@@ -71,6 +70,20 @@ public class LaserCube : Enemy
         }
     }
 
+    protected override void OnPlayerDeath(Character c)
+    {
+        StopAllCoroutines();
+        if (mainQuadLaser.gameObject.activeInHierarchy)
+        {
+            mainQuadLaser.CancelFireWeapon();
+        }
+        else
+        {
+            warningQuadLaser.CancelFireWeapon();
+        }
+        enabled = false;
+    }
+
     protected override IEnumerator SpawnSequence()
     {
         yield return new WaitForSeconds(3);
@@ -86,7 +99,7 @@ public class LaserCube : Enemy
         rotateBehavior.enabled = false;
         wanderBehavior.enabled = false;
         //wait for slow down
-        while (rbody.angularVelocity.magnitude > 0.15f)
+        while (rbody.angularVelocity.magnitude > 0.2f)
         {
             yield return null;
         }
@@ -115,13 +128,13 @@ public class LaserCube : Enemy
             mainLaser = mainQuadLaser.BackLaser;
         }
         //warning lasers
-        StartCoroutine(SingleWarningLaserSequence(warningLaser));
-        yield return new WaitForSeconds(2.7f);
+        yield return StartCoroutine(SingleWarningLaserSequence(warningLaser));
+        //yield return new WaitForSeconds(2.7f);
         //fire main laser
         float widthLerpDuration = 1;
         mainLaser.FireAndLerp(0, 0.2f, widthLerpDuration);
         //track player
-        StartCoroutine(TrackPlayerOverDuration(mainLaser.transform, 7.5f, 8));
+        StartCoroutine(TrackPlayerOverDuration(mainLaser.transform, 10f, 8));
         yield return new WaitForSeconds(5);
         //disable weapon
         mainLaser.CancelAndLerp(0, 1.5f);
@@ -139,7 +152,6 @@ public class LaserCube : Enemy
             {
                 yield return null;
             }
-            Debug.Log("starting quad sequence");
             StartQuadLaserSequence();
             yield return new WaitForSeconds(
                 quadLaserSequenceCooldown.RandomRangeValue);
@@ -158,8 +170,8 @@ public class LaserCube : Enemy
         //spinup sequence
         StartCoroutine(SpinupSequence(5, 5));
         //warning lasers
-        StartCoroutine(QuadWarningLaserSequence());
-        yield return new WaitForSeconds(5);
+        yield return StartCoroutine(QuadWarningLaserSequence());
+        //yield return new WaitForSeconds(5);
         //main lasers
         float lowWidth = 0f;
         float highWidth = 0.2f;
@@ -219,7 +231,7 @@ public class LaserCube : Enemy
             warningLaser.FireWeapon();
             yield return new WaitForSeconds(0.25f);
         }
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 3; i++)
         {
             warningLaser.CancelFireWeapon();
             yield return new WaitForSeconds(0.15f);
@@ -229,6 +241,7 @@ public class LaserCube : Enemy
         warningLaser.CancelFireWeapon();
         warningQuadLaser.gameObject.SetActive(false);
         mainQuadLaser.gameObject.SetActive(true);
+        yield return new WaitForSeconds(0.4f);
     }
 
     private IEnumerator QuadWarningLaserSequence()
@@ -254,6 +267,7 @@ public class LaserCube : Enemy
         warningQuadLaser.CancelFireWeapon();
         warningQuadLaser.gameObject.SetActive(false);
         mainQuadLaser.gameObject.SetActive(true);
+        yield return new WaitForSeconds(0.4f);
     }
 
     private IEnumerator TrackPlayerOverDuration(Transform forwardTransform,

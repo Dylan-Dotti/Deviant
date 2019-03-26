@@ -34,6 +34,9 @@ public class ObjectPoolManager : MonoBehaviour
     [SerializeField]
     private SparePartPool laserCubePartsPool;
 
+    [SerializeField]
+    private SparePartNotifierPool partNotifierPool;
+
 
     private void Awake()
     {
@@ -69,7 +72,7 @@ public class ObjectPoolManager : MonoBehaviour
         }
     }
 
-    public SparePartPool GetSparePartsPool(EnemyType enemyType)
+    public SparePartPool GetSparePartPool(EnemyType enemyType)
     {
         switch (enemyType)
         {
@@ -90,8 +93,8 @@ public class ObjectPoolManager : MonoBehaviour
         }
     }
 
-    public SparePartPool GetSparePartPool()
+    public SparePartNotifierPool GetPartNotifierPool()
     {
-        return null;
+        return partNotifierPool;
     }
 }

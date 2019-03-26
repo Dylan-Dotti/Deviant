@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -15,6 +14,7 @@ public class VortexSpawner : Enemy
 
     public override void Die()
     {
+        EnemyDeathEvent?.Invoke(this);
         deathSequence.PlayAnimation();
     }
 

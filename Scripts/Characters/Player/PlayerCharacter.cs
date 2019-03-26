@@ -8,15 +8,16 @@ public sealed class PlayerCharacter : Character
     public static PlayerCharacter Instance { get; private set; }
 
     public PlayerController Controller { get; private set; }
-    //public PlayerUpgrades Upgrades { get; private set; }
+
     public int NumSpareParts
     {
         get => numSpareParts;
         set => numSpareParts = Mathf.Max(0, value);
     }
 
+    [SerializeField]
     private int numSpareParts;
-    private AnimationSequence deathSequence;
+    private PlayerDeathSequence deathSequence;
 
     protected override void Awake()
     {
@@ -25,7 +26,6 @@ public sealed class PlayerCharacter : Character
         {
             Instance = this;
             Controller = GetComponent<PlayerController>();
-            //Upgrades = new PlayerUpgrades();
             deathSequence = GetComponent<PlayerDeathSequence>();
         }
     }
@@ -43,7 +43,6 @@ public sealed class PlayerCharacter : Character
     private void Start()
     {
         PlayerSpawnEvent?.Invoke(this);
-        NumSpareParts = 100;
     }
 
     public override void Die()

@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerSpawner : AnimationSequence
@@ -8,9 +7,6 @@ public class PlayerSpawner : AnimationSequence
     private GameObject playerBody;
     [SerializeField]
     private GameObject playerUI;
-    //remove later
-    [SerializeField]
-    private EnemySpawnerInitSequence enemySpawnerInit;
 
     [Header("Particle Effects")]
     [SerializeField]
@@ -27,15 +23,10 @@ public class PlayerSpawner : AnimationSequence
         pController = PlayerCharacter.Instance.Controller;
     }
 
-    private void Start()
+    protected override IEnumerator PlayAnimationSequence()
     {
         playerBody.SetActive(false);
         playerUI.SetActive(false);
-        StartCoroutine(PlayAnimationSequence());
-    }
-
-    protected override IEnumerator PlayAnimationSequence()
-    {
         pController.PlayerInputEnabled = false;
         implosionParticles.Play();
         yield return new WaitForSeconds(0.75f);
@@ -60,7 +51,6 @@ public class PlayerSpawner : AnimationSequence
         playerBody.SetActive(true);
         playerUI.SetActive(true);
         pController.PlayerInputEnabled = true;
-        //enemySpawnerInit.enabled = true;
         Destroy(this);
     }
 }

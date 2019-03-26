@@ -23,6 +23,7 @@ public class Duplicator : Enemy
         StopAllCoroutines();
         StartCoroutine(DeathSequence());
         DuplicatorDeathEvent?.Invoke(this);
+        EnemyDeathEvent?.Invoke(this);
     }
 
     public Duplicator Duplicate()

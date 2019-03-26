@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+[RequireComponent(typeof(ImageColorLerp))]
 public class SceneTransitionPanel : MonoBehaviour
 {
     private ImageColorLerp alphaLerper;
@@ -9,15 +8,14 @@ public class SceneTransitionPanel : MonoBehaviour
     private void Awake()
     {
         alphaLerper = GetComponent<ImageColorLerp>();
-        DontDestroyOnLoad(gameObject);
     }
 
-    public Coroutine FadeIn()
+    public Coroutine FadeForward()
     {
         return alphaLerper.LerpForward();
     }
 
-    public Coroutine FadeOut()
+    public Coroutine FadeReverse()
     {
         return alphaLerper.LerpReverse();
     }

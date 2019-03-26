@@ -51,8 +51,7 @@ public class EnemySpawnerInitSequence : AnimationSequence
 
         //1. Circle spawn
         circleParticles.Play();
-        yield return new WaitForSeconds(circleParticles.main.startLifetime.constantMin *
-            circleParticles.main.simulationSpeed);
+        yield return new WaitForSeconds(circleParticles.main.startLifetime.constantMax);
 
         //2. Implosion and Central buildup
         enemyRepulsionCollider.enabled = true;

@@ -55,6 +55,14 @@ public class LaserDrone : Enemy
         }
     }
 
+    protected override void OnPlayerDeath(Character c)
+    {
+        laserWeapon.CancelFireWeapon();
+        navAgent.ResetPath();
+        StopAllCoroutines();
+        enabled = false;
+    }
+
     private void UpdateTrailParticles()
     {
         foreach (ParticleSystem trail in trailParticles)
@@ -72,6 +80,7 @@ public class LaserDrone : Enemy
     {
         yield return new WaitForSeconds(1.5f);
         navAgent.enabled = true;
+        rotator.enabled = true;
         StartCoroutine(SetDestinationPeriodic());
         enabled = true;
     }

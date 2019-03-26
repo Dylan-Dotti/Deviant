@@ -5,15 +5,23 @@ using UnityEngine.SceneManagement;
 
 public class SlideShow : MonoBehaviour
 {
-    [SerializeField]
     private List<Slide> slideSequence;
+
+    private void Awake()
+    {
+        slideSequence = new List<Slide>();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            slideSequence.Add(transform.GetChild(i).GetComponent<Slide>());
+        }
+    }
 
     private void Start()
     {
-        StartCoroutine(SlideSequence());
+        StartCoroutine(SlideSequenceCR());
     }
 
-    private IEnumerator SlideSequence()
+    private IEnumerator SlideSequenceCR()
     {
         foreach (Slide slide in slideSequence)
         {
@@ -38,6 +46,6 @@ public class SlideShow : MonoBehaviour
                 slide.gameObject.SetActive(false);
             }
         }
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 }

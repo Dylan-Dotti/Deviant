@@ -17,14 +17,23 @@ public class RepulsionZone : MonoBehaviour
 
     private void Update()
     {
+        List<Rigidbody> destroyedRbodies = new List<Rigidbody>();
         foreach (Rigidbody rbody in detectedRbodies)
         {
-            Vector3 forceDirection = (rbody.transform.position - 
-                transform.position).normalized;
-            forceDirection = new Vector3(forceDirection.x, 0, forceDirection.z);
-            rbody.AddForce(forceDirection * repulsionMagnitude * 
-                Time.deltaTime, ForceMode.VelocityChange);
+            if (rbody == null)
+            {
+                destroyedRbodies.Add(rbody);
+            }
+            else
+            {
+                Vector3 forceDirection = (rbody.transform.position -
+                    transform.position).normalized;
+                forceDirection = new Vector3(forceDirection.x, 0, forceDirection.z);
+                rbody.AddForce(forceDirection * repulsionMagnitude *
+                    Time.deltaTime, ForceMode.VelocityChange);
+            }
         }
+        destroyedRbodies.ForEach(rb => detectedRbodies.Remove(rb));
     }
 
     private void OnTriggerEnter(Collider other)

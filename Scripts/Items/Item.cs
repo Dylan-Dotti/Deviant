@@ -12,33 +12,36 @@ public abstract class Item : MonoBehaviour
     [SerializeField]
     protected float AutoPickupRadius = 3f;
 
-    protected Rigidbody rbody;
     protected PlayerCharacter player;
 
+    private Rigidbody rbody;
+    private Collider itemCollider;
     private bool isMovingToPlayer;
 
     protected virtual void Awake()
     {
         rbody = GetComponent<Rigidbody>();
+        itemCollider = GetComponent<Collider>();
         player = PlayerCharacter.Instance;
     }
 
-    private void LateUpdate()
+    private void OnEnable()
     {
-        if (Vector3.Distance(transform.position, 
-            player.transform.position) <= AutoPickupRadius &&
-            rbody.velocity.magnitude <= 1f)
-        {
-            MoveToPlayer();
-            enabled = false;
-        }
+        itemCollider.enabled = true;
+        StartCoroutine(AttemptMoveToPlayerCR());
+    }
+
+    private void OnDisable()
+    {
+        isMovingToPlayer = false;
+        StopAllCoroutines();
     }
 
     protected virtual void OnTriggerEnter(Collider other)
     {
         if (other.tag == Tags.PLAYER_BODY_TAG)
         {
-            GetComponentInChildren<Collider>().enabled = false;
+            itemCollider.enabled = false;
             MergeWithPlayer();
         }
         else if (other.tag == Tags.WALL_TAG)
@@ -72,5 +75,17 @@ public abstract class Item : MonoBehaviour
             rbody.velocity = moveDirection * moveSpeed;
             yield return null;
         }
+    }
+
+    private IEnumerator AttemptMoveToPlayerCR()
+    {
+        yield return new WaitForSeconds(0.25f);
+        while (Vector3.Distance(transform.position,
+            player.transform.position) > AutoPickupRadius ||
+            rbody.velocity.magnitude > 1f)
+        {
+            yield return null;
+        }
+        MoveToPlayer();
     }
 }

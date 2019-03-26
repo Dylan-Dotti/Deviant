@@ -76,10 +76,11 @@ public class RangedDrone : Enemy
         }
     }
 
-    public override void Die()
+    protected override void OnPlayerDeath(Character c)
     {
-        GetComponent<SparePartsGenerator>()?.GenerateSpareParts();
-        base.Die();
+        StopAllCoroutines();
+        navAgent.ResetPath();
+        enabled = false;
     }
 
     private Vector3 GetChasePosition()
@@ -185,7 +186,7 @@ public class RangedDrone : Enemy
                     }
                     break;
             }
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.66f);
         }
     }
 

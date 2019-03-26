@@ -26,7 +26,15 @@ public abstract class EnemySpawner : MonoBehaviour
     public void Dissipate()
     {
         StopAllCoroutines();
-        EnemySpawnerDissipateEvent?.Invoke();
+        if (EnemySpawnerDissipateEvent != null)
+        {
+            Debug.Log("Dissipate event");
+            EnemySpawnerDissipateEvent();
+        }
+        else
+        {
+            Debug.Log("No subscribers");
+        }
         dissipateSequence.PlayAnimation();
     }
 
@@ -131,12 +139,6 @@ public abstract class EnemySpawner : MonoBehaviour
         return new Vector3(Random.Range(-1f, 1f), 0,
             Random.Range(-1f, 1f)).normalized;
     }
-
-    /*private void OnDrawGizmos()
-    {
-        Vector3 launchDirection = GetIdealRandomLaunchDirection(20, 20) * 20;
-        Gizmos.DrawRay(transform.position, launchDirection);
-    }*/
 
     private IEnumerator DissipateAfterSecondsCR(float seconds)
     {

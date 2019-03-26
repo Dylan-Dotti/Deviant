@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SparePart : Item, IPoolable<SparePart>
@@ -15,9 +14,22 @@ public class SparePart : Item, IPoolable<SparePart>
     [SerializeField]
     private int value = 1;
 
+    private SparePartNotifierPool partNotifierPool;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        partNotifierPool = ObjectPoolManager.Instance.
+            GetPartNotifierPool();
+    }
+
     public override void MergeWithPlayer()
     {
         player.NumSpareParts += value;
+        SparePartNotifier notifier = partNotifierPool.Get();
+        notifier.SpawnAtPos(transform.position);
+        notifier.TextComponent.text = "+" + value;
+        notifier.transform.parent = player.transform;
         transform.parent = player.transform;
         StartCoroutine(ShrinkAndReturnToPool());
     }
@@ -35,12 +47,12 @@ public class SparePart : Item, IPoolable<SparePart>
             transform.localScale *= scalar;
             yield return null;
         }
-        Destroy(gameObject);
-
+        transform.localScale = originalScale;
+        ReturnToPool();
     }
 
     public void ReturnToPool()
     {
-        throw new System.NotImplementedException();
+        Pool.ReturnToPool(this);
     }
 }
