@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RecursiveUILerper : PercentageLerper
+public class RecursiveUIAlphaLerper : PercentageLerper
 {
     private List<Image> childImageComponents;
     private List<Text> childTextComponents;

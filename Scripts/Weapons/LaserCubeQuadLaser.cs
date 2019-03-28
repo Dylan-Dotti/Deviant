@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class LaserCubeQuadLaser : MultiLaser
 {
@@ -16,17 +17,42 @@ public class LaserCubeQuadLaser : MultiLaser
     [SerializeField]
     private SingleLaser rightLaser;
 
+    private AudioSource laserSound;
+    private List<AudioSource> childLaserSounds;
+
     private void Awake()
     {
-        //wrong
-        /*ForwardLaser = transform.Find("Forward Weapon").
-            GetComponent<SingleLaser>();
-        BackLaser = transform.Find("Back Weapon").
-            GetComponent<SingleLaser>();
-        LeftLaser = transform.Find("Left Weapon").
-            GetComponent<SingleLaser>();
-        RightLaser = transform.Find("Right Weapon").
-            GetComponent<SingleLaser>();*/
+        laserSound = GetComponent<AudioSource>();
+        childLaserSounds = new List<AudioSource>();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            AudioSource childSource = transform.GetChild(i).
+                GetComponent<AudioSource>();
+            if (childSource != null)
+            {
+                childLaserSounds.Add(childSource);
+            }
+        }
+    }
+
+    public override void FireWeapon()
+    {
+        childLaserSounds.ForEach(s => s.mute = true);
+        base.FireWeapon();
+        if (laserSound != null)
+        {
+            laserSound.Play();
+        }
+    }
+
+    public override void CancelFireWeapon()
+    {
+        childLaserSounds.ForEach(s => s.mute = false);
+        base.CancelFireWeapon();
+        if (laserSound != null)
+        {
+            laserSound.Stop();
+        }
     }
 
     public override void TurnToFace(Vector3 targetPos)

@@ -2,6 +2,9 @@
 
 public class ReinforcedFrame : PlayerUpgrade
 {
+    public override string Description => "Increase the maximum " + 
+        "health of your combat " + "frame by " + increaseAmount;
+
     [SerializeField]
     private int increaseAmount;
 
@@ -19,8 +22,6 @@ public class ReinforcedFrame : PlayerUpgrade
         AddStatsDisplay(currentHealthStats);
         AddStatsDisplay(maxHealthStats);
         UpdateStatsDisplays();
-        description = "Increase the maximum health of your combat " +
-            "frame by " + increaseAmount;
     }
 
     public override void ApplyUpgrade()

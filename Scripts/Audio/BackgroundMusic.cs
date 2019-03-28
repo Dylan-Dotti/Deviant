@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
@@ -10,23 +11,23 @@ public class BackgroundMusic : MonoBehaviour
     public AudioPlayMode PlayMode { get; set; }
     public MusicTrack CurrentTrack { get; private set; }
     public bool IsChangingSongs { get; private set; } = false;
-    public bool IsFadingVolume { get; private set; } = false;
+    public bool IsLerpingVolume { get; private set; } = false;
 
     public bool Muted
     {
-        get { return source.mute; }
-        set { source.mute = value; }
+        get { return musicSource.mute; }
+        set { musicSource.mute = value; }
     }
 
     public float CurrentVolume
     {
         get
         {
-            return source.volume;
+            return musicSource.volume;
         }
         set
         {
-            source.volume = Mathf.Clamp01(value);
+            musicSource.volume = Mathf.Clamp01(value);
         }
     }
 
@@ -62,13 +63,16 @@ public class BackgroundMusic : MonoBehaviour
     [SerializeField]
     private float pauseVolumeFadeDuration = 1f;
 
-    private AudioSource source;
+    private AudioSource musicSource;
     private float defaultVolume;
+
+    private List<int> volumeMultipliers;
 
     private void Awake()
     {
-        source = GetComponent<AudioSource>();
-        defaultVolume = source.volume;
+        volumeMultipliers = new List<int>();
+        musicSource = GetComponent<AudioSource>();
+        defaultVolume = musicSource.volume;
         PauseMenu.GamePausedEvent += OnGamePause;
         PauseMenu.GameResumedEvent += OnGameResume;
     }
@@ -78,7 +82,8 @@ public class BackgroundMusic : MonoBehaviour
         PlayMode = AudioPlayMode.Combat;
         if (shuffleOnStart)
         {
-            ShuffleCombatTracks();
+            ShuffleTracks(idleTracks);
+            ShuffleTracks(combatTracks);
         }
     }
 
@@ -86,8 +91,8 @@ public class BackgroundMusic : MonoBehaviour
     {
         if (Application.isFocused && !Muted)
         {
-            if (Input.GetKeyDown(KeyCode.N) || !source.isPlaying || 
-                source.time > CurrentTrack.FadeOutTime)
+            if (Input.GetKeyDown(KeyCode.N) || !musicSource.isPlaying || 
+                musicSource.time > CurrentTrack.FadeOutTime)
             {
                 PlayNextSong();
             }
@@ -98,11 +103,11 @@ public class BackgroundMusic : MonoBehaviour
     {
         if (focus)
         {
-            source.UnPause();
+            musicSource.UnPause();
         }
         else
         {
-            source.Pause();
+            musicSource.Pause();
         }
     }
 
@@ -135,24 +140,14 @@ public class BackgroundMusic : MonoBehaviour
 
     public void Pause()
     {
-        source.Pause();
+        musicSource.Pause();
         enabled = false;
     }
 
     public void UnPause()
     {
-        source.UnPause();
+        musicSource.UnPause();
         enabled = true;
-    }
-
-    public void ShuffleIdleTracks()
-    {
-        ShuffleTracks(idleTracks);
-    }
-
-    public void ShuffleCombatTracks()
-    {
-        ShuffleTracks(combatTracks);
     }
 
     public void FadeVolume(float scale)
@@ -212,43 +207,43 @@ public class BackgroundMusic : MonoBehaviour
     private IEnumerator LerpVolume(float scale, float duration)
     {
         float lerpStartTime = Time.unscaledTime;
-        float lerpStartVolume = source.volume;
-        IsFadingVolume = true;
+        float lerpStartVolume = musicSource.volume;
+        IsLerpingVolume = true;
         while (Time.unscaledTime - lerpStartTime < duration)
         {
             float lerpPercentage = (Time.unscaledTime - lerpStartTime) / duration;
-            source.volume = Mathf.Lerp(lerpStartVolume, scale, lerpPercentage);
+            musicSource.volume = Mathf.Lerp(lerpStartVolume, scale, lerpPercentage);
             yield return null;
         }
-        source.volume = scale;
-        IsFadingVolume = false;
+        musicSource.volume = scale;
+        IsLerpingVolume = false;
     }
 
     private IEnumerator FadeBetweenTracks(MusicTrack nextTrack)
     {
         IsChangingSongs = true;
         enabled = false;
-        if (source.isPlaying)
+        if (musicSource.isPlaying)
         {
             FadeToZero();
             yield return null;
-            while (IsFadingVolume)
+            while (IsLerpingVolume)
             {
                 yield return null;
             }
         }
         else
         {
-            source.volume = 0;
+            musicSource.volume = 0;
         }
-        source.clip = nextTrack.Track;
-        source.Play();
-        source.time = nextTrack.StartTime;
+        musicSource.clip = nextTrack.Track;
+        musicSource.Play();
+        musicSource.time = nextTrack.StartTime;
         bool isPaused = PauseMenu.Instance.IsPaused;
         FadeVolume(defaultVolume * nextTrack.VolumeMultiplier * 
             (isPaused ? pauseVolumeMultiplier : 1f));
         yield return null;
-        while (IsFadingVolume)
+        while (IsLerpingVolume)
         {
             yield return null;
         }

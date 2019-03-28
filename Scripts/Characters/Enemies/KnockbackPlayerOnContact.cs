@@ -9,11 +9,17 @@ public class KnockbackPlayerOnContact : MonoBehaviour
     [SerializeField]
     private float knockbackDuration;
 
-    private PlayerCharacter player;
+    private PlayerController pController;
 
     private void Awake()
     {
-        player = PlayerCharacter.Instance;
+        pController = PlayerCharacter.Instance.Controller;
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        pController.RemoveVelocityModifier(knockbackModifier);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -36,10 +42,9 @@ public class KnockbackPlayerOnContact : MonoBehaviour
 
     private IEnumerator KnockbackPlayer()
     {
-        PlayerController pController = player.Controller;
         pController.ResetMovement();
         pController.AddVelocityModifier(knockbackModifier);
-        Vector3 knockbackDirection = (player.transform.position - 
+        Vector3 knockbackDirection = (pController.transform.position -
             transform.position).normalized;
         Vector3 lerpStartVelocity = knockbackDirection * 
             knockbackModifier.MaxMagnitude;

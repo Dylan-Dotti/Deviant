@@ -41,9 +41,15 @@ public class SingleLaser : ToggleWeapon
     [SerializeField]
     private List<string> collidableTags;
 
+    private AudioSource laserSound;
     private Vector3 targetPosition;
     private float timeSinceLastDamage;
     private float timeSinceLastParticles;
+
+    private void Awake()
+    {
+        laserSound = GetComponent<AudioSource>();
+    }
 
     protected override void Update()
     {
@@ -84,6 +90,10 @@ public class SingleLaser : ToggleWeapon
         {
             fireParticles.Play();
         }
+        if (laserSound != null)
+        {
+            laserSound.Play();
+        }
     }
 
     public void FireAndLerp(float startWidth, float endWidth, float maxDuration)
@@ -101,6 +111,10 @@ public class SingleLaser : ToggleWeapon
         if (fireParticles != null)
         {
             fireParticles.Stop();
+        }
+        if (laserSound != null)
+        {
+            laserSound.Stop();
         }
     }
 

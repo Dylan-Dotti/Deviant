@@ -22,10 +22,10 @@ public class MultiLaser : ToggleWeapon
         lasers.ForEach(l => l.FireWeapon());
     }
 
-    public override void AttemptFireWeapon()
+    /*public override void AttemptFireWeapon()
     {
         lasers.ForEach(l => l.AttemptFireWeapon());
-    }
+    }*/
 
     public override void CancelFireWeapon()
     {

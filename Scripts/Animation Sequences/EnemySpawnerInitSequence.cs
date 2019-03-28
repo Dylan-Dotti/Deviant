@@ -36,7 +36,7 @@ public class EnemySpawnerInitSequence : AnimationSequence
         StopAllCoroutines();
     }
 
-    protected override IEnumerator PlayAnimationSequence()
+    protected override IEnumerator AnimationSequenceCR()
     {
         yield return new WaitForSeconds(1);
         IsPlaying = true;

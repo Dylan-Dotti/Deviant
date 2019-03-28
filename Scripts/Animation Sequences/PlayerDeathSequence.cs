@@ -14,7 +14,7 @@ public class PlayerDeathSequence : AnimationSequence
     [SerializeField]
     private ParticleSystem explosionParticles;
 
-    protected override IEnumerator PlayAnimationSequence()
+    protected override IEnumerator AnimationSequenceCR()
     {
         IsPlaying = true;
         healthBar.gameObject.SetActive(false);

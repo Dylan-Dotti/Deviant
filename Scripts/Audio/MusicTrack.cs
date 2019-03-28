@@ -1,14 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
 public class MusicTrack
 {
-    public AudioClip Track { get { return track; } }
-    public float VolumeMultiplier { get { return volumeMultiplier; } }
-    public float StartTime { get { return startTime; } }
-    public float FadeOutTime { get { return fadeOutTime; } }
+    public AudioClip Track => track;
+    public float VolumeMultiplier => volumeMultiplier;
+    public float StartTime => startTime;
+    public float FadeOutTime => fadeOutTime;
 
     [SerializeField]
     private AudioClip track;

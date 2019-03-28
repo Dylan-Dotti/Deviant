@@ -35,6 +35,8 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         set => cost = Mathf.Max(0, value);
     }
 
+    public virtual string Description => descriptionText.text;
+
     public bool PlayerCanAfford
     {
         get => player.NumSpareParts >= Cost;
@@ -65,7 +67,7 @@ public abstract class PlayerUpgrade : MonoBehaviour,
     [SerializeField]
     private int cost;
 
-    protected string description;
+    //protected string description;
     protected PlayerCharacter player;
 
     private HashSet<StatsDisplay> statsDisplays;
@@ -92,7 +94,6 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         purchaseButton = GetComponentInChildren<Button>();
         purchaseButton.onClick.AddListener(AttemptApplyUpgrade);
         purchaseSound = GetComponent<AudioSource>();
-        description = descriptionText.text;
         player = PlayerCharacter.Instance;
         statsDisplays = new HashSet<StatsDisplay>();
     }
@@ -100,7 +101,7 @@ public abstract class PlayerUpgrade : MonoBehaviour,
     protected virtual void Update()
     {
         timeSinceLastPurchase += Time.deltaTime;
-        descriptionText.text = description;
+        descriptionText.text = Description;
         purchaseButton.interactable = PlayerCanAfford && Purchasable && Cost != 0;
         UpdateCostText();
     }

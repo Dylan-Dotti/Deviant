@@ -9,7 +9,7 @@ public class VortexDeathSequence : AnimationSequence
     [SerializeField]
     private HealthBar healthBar;
 
-    protected override IEnumerator PlayAnimationSequence()
+    protected override IEnumerator AnimationSequenceCR()
     {
         IsPlaying = true;
         healthBar.gameObject.SetActive(false);

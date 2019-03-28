@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 public class WaveGenerator : MonoBehaviour
 {
@@ -62,12 +61,6 @@ public class WaveGenerator : MonoBehaviour
         }
     }
 
-    private void OnEnable()
-    {
-        //StartNextWave();
-        //StartCoroutine(SpawnRandomPortalsPeriodic());
-    }
-
     private void OnDisable()
     {
         StopAllCoroutines();
@@ -78,7 +71,7 @@ public class WaveGenerator : MonoBehaviour
         StopAllCoroutines();
         currentWaveCount++;
         Debug.Log("Starting wave " + currentWaveCount);
-        currentWave = GenerateRandomWave(6, 3);
+        currentWave = GenerateRandomWave(6, 2);
         StartCoroutine(SpawnWaveCR(currentWave, new FloatRange(15f, 20)));
         WaveStartedEvent?.Invoke(currentWaveCount);
     }

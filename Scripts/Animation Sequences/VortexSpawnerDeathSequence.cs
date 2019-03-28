@@ -30,7 +30,7 @@ public class VortexSpawnerDeathSequence : AnimationSequence
         source = GetComponent<AudioSource>();
     }
 
-    protected override IEnumerator PlayAnimationSequence()
+    protected override IEnumerator AnimationSequenceCR()
     {
         //disable stuff
         healthBar.SetActive(false);

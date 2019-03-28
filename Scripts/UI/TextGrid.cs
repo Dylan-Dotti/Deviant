@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using System.Linq;
 
 public class TextGrid
@@ -77,7 +75,6 @@ public class TextGrid
 
     public void InitializeTextGrid(List<List<LerpWaveText>> rowInputs)
     {
-        Debug.Log("Initializing text grid");
         //get longest row length
         int longestRowLength = 0;
         foreach (List<LerpWaveText> textRow in rowInputs)
@@ -105,21 +102,6 @@ public class TextGrid
                 textGrid[r, c] = lwText;
             }
         }
-
-        Debug.Log("Text grid initialized");
-        Debug.Log("Longest Row: " + longestRowLength);
-        for (int r = 0; r < textGrid.GetLength(0); r++)
-        {
-            string rowStr = "";
-            for (int c = 0; c < textGrid.GetLength(1); c++)
-            {
-                if (textGrid[r, c] != null)
-                {
-                    rowStr += textGrid[r, c].text;
-                }
-            }
-            Debug.Log(rowStr);
-        }
     }
 
     public void InitializeTextGrid(List<StartMenuButton> buttons)
@@ -129,9 +111,9 @@ public class TextGrid
 
     private List<List<LerpWaveText>> ParseTitleMenuText(List<StartMenuButton> buttons)
     {
-        List<List<LerpWaveText>> smTexts = new List<List<LerpWaveText>>();
-        buttons.ForEach(b => smTexts.Add(b.TextComponents));
-        return smTexts;
+        List<List<LerpWaveText>> textRows = new List<List<LerpWaveText>>();
+        buttons.ForEach(b => textRows.Add(b.TextComponents));
+        return textRows;
     }
 
     private void OnTextMouseEnter(LerpWaveText text)

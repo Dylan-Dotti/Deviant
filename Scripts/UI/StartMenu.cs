@@ -5,38 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class StartMenu : MonoBehaviour
 {
-    //Move wave functionality to seperate class
-    public class WaveActivationSequence
-    {
-        //public readonly LerpWaveText baseText;
-        public readonly Stack<Dictionary<LerpWaveText,
-            LerpWaveText.WaveForce>> activationStack;
-
-        public WaveActivationSequence(LerpWaveText baseText,
-            LerpWaveText.WaveForce baseForce)
-        {
-            activationStack = new Stack<Dictionary<
-                LerpWaveText, LerpWaveText.WaveForce>>();
-            Dictionary<LerpWaveText, LerpWaveText.WaveForce> baseDict =
-                new Dictionary<LerpWaveText, LerpWaveText.WaveForce>();
-            baseDict.Add(baseText, baseForce);
-            activationStack.Push(baseDict);
-        }
-
-        public bool SequenceContainsText(LerpWaveText searchText)
-        {
-            foreach(Dictionary<LerpWaveText, LerpWaveText.WaveForce>
-                dict in activationStack)
-            {
-                if (dict.ContainsKey(searchText))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
     public static StartMenu Instance { get; private set; }
 
     [SerializeField]
@@ -44,22 +12,40 @@ public class StartMenu : MonoBehaviour
     [SerializeField]
     private List<StartMenuButton> menuButtons;
     [SerializeField]
+    private StartMenuCPU cpu;
+    [SerializeField]
     private SceneTransitionPanel transitionPanel;
     [SerializeField]
     private LoadingBar loadBar;
 
+    private TextGrid titleTextGrid;
     private TextGrid buttonsTextGrid;
-    private WaveActivationSequence activeSequence;
-    private Coroutine activeRoutine;
+    private TextLerpWave lerpWave;
+
+    private KeyValuePair<TextLerpWave.WaveActivationSequence, Coroutine> activeButtonWave;
 
     private Coroutine titlePeriodicLerpRoutine;
-    private Dictionary<WaveActivationSequence, Coroutine> titleActivations;
+    private Dictionary<TextLerpWave.WaveActivationSequence, Coroutine> titleActivations;
+
+    private LerpWaveText mouseoverText;
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
+
+            titleActivations = new Dictionary<TextLerpWave.
+                WaveActivationSequence, Coroutine>();
+
+            //title grid
+            List<List<LerpWaveText>> titleTextGridRows =
+                new List<List<LerpWaveText>>();
+            titleTextGridRows.Add(new List<LerpWaveText>(
+                titleTextComponents));
+            titleTextGrid = new TextGrid(titleTextGridRows);
+
+            //buttons grid
             List<List<LerpWaveText>> buttonTextGridRows =
                 new List<List<LerpWaveText>>();
             menuButtons.ForEach(b => buttonTextGridRows.Add(
@@ -68,7 +54,8 @@ public class StartMenu : MonoBehaviour
             buttonsTextGrid.MouseEnterEvent += OnTextMouseEnter;
             buttonsTextGrid.MouseExitEvent += OnTextMouseExit;
             buttonsTextGrid.MouseClickEvent += OnTextMouseClick;
-            titleActivations = new Dictionary<WaveActivationSequence, Coroutine>();
+
+            lerpWave = GetComponent<TextLerpWave>();
         }
     }
 
@@ -99,13 +86,16 @@ public class StartMenu : MonoBehaviour
 
     private void OnTextMouseEnter(LerpWaveText lwText)
     {
-        activeRoutine = StartCoroutine(LerpTextColorCascadeForward(lwText, 6));
+        mouseoverText = lwText;
+        activeButtonWave = lerpWave.LerpForward(buttonsTextGrid, 
+            lwText, 6, .05f, .3f);
     }
 
     private void OnTextMouseExit(LerpWaveText lwText)
     {
-        StopCoroutine(activeRoutine);
-        StartCoroutine(LerpTextColorCascadeReverse(activeSequence));
+        mouseoverText = null;
+        lerpWave.CancelLerp(activeButtonWave.Value);
+        lerpWave.LerpReverse(activeButtonWave.Key);
     }
 
     private void OnTextMouseClick(LerpWaveText lwText)
@@ -120,95 +110,38 @@ public class StartMenu : MonoBehaviour
         yield return transitionPanel.FadeForward();
         transitionPanel.gameObject.SetActive(false);
         titlePeriodicLerpRoutine = StartCoroutine(LerpTitleRandomPeriodic());
-        /*foreach (LerpWaveText titleComponent in titleTextComponents)
-        {
-            titleComponent.ColorLerper.StartLerpPeriodic(
-                new FloatRange(0.5f, 10f));
-        }*/
-    }
-
-    private IEnumerator LerpTextColorCascadeForward(LerpWaveText baseText, int depth)
-    {
-        LerpWaveText.WaveForce baseTextForce = baseText.AddWaveForce(1);
-        activeSequence = new WaveActivationSequence(baseText, baseTextForce);
-        Stack<Dictionary<LerpWaveText, LerpWaveText.WaveForce>> activationStack =
-            activeSequence.activationStack;
-
-        for (int i = 0; i < depth; i++)
-        {
-            yield return new WaitForSeconds(0.05f);
-            ICollection<LerpWaveText> previousActivated = activationStack.Peek().Keys;
-            Dictionary<LerpWaveText, LerpWaveText.WaveForce> activated =
-                new Dictionary<LerpWaveText, LerpWaveText.WaveForce>();
-            foreach (LerpWaveText lwText in previousActivated)
-            {
-                ICollection<LerpWaveText> neighbors = buttonsTextGrid.GetTextNeighbors(lwText);
-                foreach (LerpWaveText neighborText in neighbors)
-                {
-                    if (neighborText != null && !activeSequence
-                        .SequenceContainsText(neighborText) &&
-                        !activated.ContainsKey(neighborText))
-                    {
-                        LerpWaveText.WaveForce force;
-                        if (neighborText.Row == baseText.Row)
-                        {
-                            force = neighborText.AddWaveForce(1f - (0.05f * 
-                                buttonsTextGrid.GetHorizontalDistance(neighborText, baseText)));
-                        }
-                        else
-                        {
-                            force = neighborText.AddWaveForce(1f - (0.3f *
-                                buttonsTextGrid.GetDiagonalDistance(neighborText, baseText)));
-                        }
-                        activated.Add(neighborText, force);
-                    }
-                }
-            }
-            if (activated.Count > 0)
-            {
-                activationStack.Push(activated);
-            }
-        }
-    }
-
-    private IEnumerator LerpTextColorCascadeReverse(WaveActivationSequence sequence)
-    {
-        Stack<Dictionary<LerpWaveText, LerpWaveText.WaveForce>> activationStack =
-            sequence.activationStack;
-        while (activationStack.Count > 0)
-        {
-            yield return new WaitForSeconds(0.25f);
-            foreach (KeyValuePair<LerpWaveText, LerpWaveText.WaveForce>
-                lwPair in activationStack.Pop())
-            {
-                lwPair.Key.RemoveWaveForce(lwPair.Value);
-            }
-        }
     }
 
     private IEnumerator LerpTitleRandomPeriodic()
     {
+        FloatRange activateDelay = new FloatRange(1, 3);
+        FloatRange deactivateDelay = new FloatRange(1, 2);
         while (true)
         {
             int randIndex = Random.Range(0, titleTextComponents.Count);
             LerpWaveText lerpBase = titleTextComponents[randIndex];
-            WaveActivationSequence sequence = new WaveActivationSequence(
-                lerpBase, new LerpWaveText.WaveForce(1));
-            //todo
-            yield return null;
+            KeyValuePair<TextLerpWave.WaveActivationSequence, Coroutine>
+                waveSequencePair = lerpWave.LerpForward(titleTextGrid, lerpBase,
+                3, .2f, 1f);
+            lerpWave.ReverseSequenceAfter(waveSequencePair, 
+                deactivateDelay.RandomRangeValue);
+            yield return new WaitForSeconds(activateDelay.RandomRangeValue);
         }
     }
 
-    private IEnumerator ReverseSequenceAfter(WaveActivationSequence sequence,
-        Coroutine sequenceRoutine, FloatRange delayRange)
+    private IEnumerator FillAllBlue(LerpWaveText baseText)
     {
-        yield return new WaitForSeconds(delayRange.RandomRangeValue);
-        StopCoroutine(sequenceRoutine);
-        StartCoroutine(LerpTextColorCascadeReverse(sequence));
+        cpu.LerpBlue();
+        List<List<LerpWaveText>> textRows = new List<List<LerpWaveText>>();
+        textRows.Add(titleTextComponents);
+        menuButtons.ForEach(b => textRows.Add(b.TextComponents));
+        TextGrid grid = new TextGrid(textRows);
+        yield return lerpWave.LerpForward(grid, baseText, 10, 0, 0).Value;
     }
 
     private IEnumerator LoadGame()
     {
+        yield return StartCoroutine(FillAllBlue(mouseoverText));
         transitionPanel.gameObject.SetActive(true);
         yield return transitionPanel.FadeReverse();
         loadBar.gameObject.SetActive(true);

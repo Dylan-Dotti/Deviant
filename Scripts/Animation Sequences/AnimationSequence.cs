@@ -9,7 +9,7 @@ public abstract class AnimationSequence : MonoBehaviour
     {
         if (!IsPlaying)
         {
-            return StartCoroutine(PlayAnimationSequence());
+            return StartCoroutine(AnimationSequenceCR());
         }
         return null;
     }
@@ -19,5 +19,5 @@ public abstract class AnimationSequence : MonoBehaviour
         StopAllCoroutines();
     }
 
-    protected abstract IEnumerator PlayAnimationSequence();
+    protected abstract IEnumerator AnimationSequenceCR();
 }

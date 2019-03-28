@@ -24,6 +24,8 @@ public class Boost : MonoBehaviour
     private float chargeCooldown = 5;
     [SerializeField]
     private ParticleSystem boostParticles;
+    [SerializeField]
+    private AudioSource boostSound;
 
     private int currentNumCharges;
     private float timeSinceLastBoost;
@@ -60,6 +62,7 @@ public class Boost : MonoBehaviour
     {
         StartCoroutine(BoostSequence(boostDirection));
         currentNumCharges = Mathf.Max(currentNumCharges - 1, 0);
+        boostSound.Play();
         timeSinceLastBoost = 0;
     }
 

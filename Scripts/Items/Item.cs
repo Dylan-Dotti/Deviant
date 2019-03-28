@@ -18,6 +18,8 @@ public abstract class Item : MonoBehaviour
     private Collider itemCollider;
     private bool isMovingToPlayer;
 
+    private Coroutine moveToPlayerCR;
+
     protected virtual void Awake()
     {
         rbody = GetComponent<Rigidbody>();
@@ -56,7 +58,10 @@ public abstract class Item : MonoBehaviour
 
     public void MoveToPlayer()
     {
-        StopAllCoroutines();
+        if (moveToPlayerCR != null)
+        {
+            StopCoroutine(moveToPlayerCR);
+        }
         StartCoroutine(MoveToPlayerCR());
     }
 

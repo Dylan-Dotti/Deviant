@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CombatSceneInitializer : MonoBehaviour
@@ -7,7 +6,7 @@ public class CombatSceneInitializer : MonoBehaviour
     [SerializeField]
     private SceneTransitionPanel transitionPanel;
     [SerializeField]
-    private PlayerSpawner playerSpawner;
+    private PlayerSpawnAnimation playerSpawner;
     [SerializeField]
     private GameObject audioManagerObject;
     [SerializeField]

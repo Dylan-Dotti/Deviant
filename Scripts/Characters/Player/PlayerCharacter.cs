@@ -16,6 +16,8 @@ public sealed class PlayerCharacter : Character
     }
 
     [SerializeField]
+    private AudioSource engineSource;
+    [SerializeField]
     private int numSpareParts;
     private PlayerDeathSequence deathSequence;
 
@@ -30,19 +32,21 @@ public sealed class PlayerCharacter : Character
         }
     }
 
+    private void Start()
+    {
+        PlayerSpawnEvent?.Invoke(this);
+    }
+
     private void OnEnable()
     {
         Controller.enabled = true;
+        engineSource.Play();
     }
 
     private void OnDisable()
     {
         Controller.enabled = false;
-    }
-
-    private void Start()
-    {
-        PlayerSpawnEvent?.Invoke(this);
+        engineSource.Stop();
     }
 
     public override void Die()
@@ -50,6 +54,7 @@ public sealed class PlayerCharacter : Character
         Controller.PlayerInputEnabled = false;
         Controller.ResetMovement();
         Controller.enabled = false;
+        engineSource.Stop();
         GetComponent<Rigidbody>().velocity = Vector3.zero;
         PlayerDeathEvent?.Invoke(this);
         deathSequence.PlayAnimation();
