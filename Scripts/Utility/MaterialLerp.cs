@@ -22,7 +22,6 @@ public class MaterialLerp : PercentageLerper
 
     protected override void UpdateLerpVariables(float lerpPercentage)
     {
-        rend.material.Lerp(originalMaterial, 
-            lerpMaterial, lerpPercentage);
+        rend.material.Lerp(originalMaterial, lerpMaterial, lerpPercentage);
     }
 }

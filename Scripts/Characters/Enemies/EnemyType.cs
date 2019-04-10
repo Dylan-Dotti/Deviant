@@ -2,5 +2,5 @@
 public enum EnemyType
 {
     SeekerMine, Duplicator, VortexSpawner,
-    RangedDrone, LaserDrone, LaserCube
+    Vortex, RangedDrone, LaserDrone, LaserCube
 }

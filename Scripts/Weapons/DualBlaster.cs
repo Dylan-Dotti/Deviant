@@ -1,14 +1,21 @@
 ﻿using UnityEngine;
 
-public class DualBlaster : Weapon
+public class DualBlaster : BlasterWeapon
 {
-    public SingleBlaster LeftBlaster => leftBlaster;
-    public SingleBlaster RightBlaster => rightBlaster;
+    public BlasterWeapon LeftBlaster => leftBlaster;
+    public BlasterWeapon RightBlaster => rightBlaster;
+
+    public override IntRange ProjectileDmgRange
+    {
+        get { return leftBlaster.ProjectileDmgRange; }
+        set { leftBlaster.ProjectileDmgRange = value;
+              rightBlaster.ProjectileDmgRange = value; }
+    }
 
     [SerializeField]
-    private SingleBlaster leftBlaster;
+    private BlasterWeapon leftBlaster;
     [SerializeField]
-    private SingleBlaster rightBlaster;
+    private BlasterWeapon rightBlaster;
 
     private bool firedLeftLast = false;
 

@@ -25,7 +25,7 @@ public class PlayerDeathSequence : AnimationSequence
         yield return null;
         playerBody.SetActive(false);
         IsPlaying = false;
-        yield return new WaitForSeconds(4);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //yield return new WaitForSeconds(4);
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

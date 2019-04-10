@@ -1,13 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnhancedThrusters : PlayerUpgrade
 {
+    public override int MaxNumPurchases => 5;
+
     [SerializeField]
-    private float accelPercentageIncrease = 0.1f;
+    private float accelPercentageIncrease = 0.05f;
     [SerializeField]
-    private float speedPercentageIncrease = 0.1f;
+    private float speedPercentageIncrease = 0.05f;
     [SerializeField]
     private StatsDisplay accelerationDisplay;
     [SerializeField]

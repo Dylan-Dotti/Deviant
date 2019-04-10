@@ -1,9 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ObjectPoolManager : MonoBehaviour
 {
-    public enum ProjectileType { Player, RangedDrone }
+    public enum ProjectileType { Player, VortexSpawner, RangedDrone }
     public enum DamagerType { Player, RangedDrone}
 
     public static ObjectPoolManager Instance { get; private set; }
@@ -11,6 +10,8 @@ public class ObjectPoolManager : MonoBehaviour
     [Header("Projectile Pools")]
     [SerializeField]
     private ProjectilePool playerProjectilePool;
+    [SerializeField]
+    private ProjectilePool vortexSpawnerProjectilePool;
     [SerializeField]
     private ProjectilePool rangedDroneProjectilePool;
 
@@ -52,6 +53,8 @@ public class ObjectPoolManager : MonoBehaviour
         {
             case ProjectileType.Player:
                 return playerProjectilePool;
+            case ProjectileType.VortexSpawner:
+                return vortexSpawnerProjectilePool;
             case ProjectileType.RangedDrone:
                 return rangedDroneProjectilePool;
             default:

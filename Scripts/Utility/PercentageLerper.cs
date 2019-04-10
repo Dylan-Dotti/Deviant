@@ -99,6 +99,13 @@ public abstract class PercentageLerper : MonoBehaviour
         }
     }
 
+    protected float Vector3InverseLerp(Vector3 a, Vector3 b, Vector3 value)
+    {
+        Vector3 AB = b - a;
+        Vector3 AV = value - a;
+        return Vector3.Dot(AV, AB) / Vector3.Dot(AB, AB);
+    }
+
     protected float Vector4InverseLerp(Vector4 a, Vector4 b, Vector4 value)
     {
         Vector4 AB = b - a;

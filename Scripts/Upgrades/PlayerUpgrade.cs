@@ -35,6 +35,8 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         set => cost = Mathf.Max(0, value);
     }
 
+    public virtual int MaxNumPurchases => int.MaxValue;
+
     public virtual string Description => descriptionText.text;
 
     public bool PlayerCanAfford
@@ -42,30 +44,17 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         get => player.NumSpareParts >= Cost;
     }
 
-    public bool Purchasable
+    public virtual bool Purchasable
     {
-        get => purchasable;
-        set
-        {
-            if (value != purchasable)
-            {
-                if (value)
-                {
-                    FadeIn();
-                }
-                else
-                {
-                    FadeOut();
-                }
-            }
-            purchasable = value;
-        }
+        get => NumTimesPurchased < MaxNumPurchases;
     }
 
     public int NumTimesPurchased { get; private set; }
 
     [SerializeField]
     private int cost;
+    //[SerializeField]
+    //private int maxNumPurchases;
 
     //protected string description;
     protected PlayerCharacter player;
@@ -82,7 +71,6 @@ public abstract class PlayerUpgrade : MonoBehaviour,
     private Color32 unpurchasableTextColor =
         new Color32(255, 42, 42, 255);
 
-    private bool purchasable = true;
     private bool isFading;
 
     protected virtual void Awake()
@@ -104,11 +92,11 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         descriptionText.text = Description;
         purchaseButton.interactable = PlayerCanAfford && Purchasable && Cost != 0;
         UpdateCostText();
+        UpdateStatsDisplays();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        UpdateStatsDisplays();
         SetNewStatsActive(Purchasable);
     }
 
@@ -129,8 +117,11 @@ public abstract class PlayerUpgrade : MonoBehaviour,
     {
         player.NumSpareParts -= Cost;
         NumTimesPurchased += 1;
-        SetNewStatsActive(PlayerCanAfford);
-        UpdateStatsDisplays();
+        if (NumTimesPurchased >= MaxNumPurchases)
+        {
+            FadeOut();
+        }
+        SetNewStatsActive(PlayerCanAfford && Purchasable);
         purchaseSound.PlayOneShot(purchaseSound.clip);
         timeSinceLastPurchase = 0;
     }

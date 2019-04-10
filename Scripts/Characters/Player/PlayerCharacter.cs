@@ -2,12 +2,13 @@
 
 public sealed class PlayerCharacter : Character
 {
-    public static CharacterDelegate PlayerSpawnEvent;
-    public static CharacterDelegate PlayerDeathEvent;
+    public CharacterDelegate PlayerSpawnEvent;
+    public CharacterDelegate PlayerDeathEvent;
 
     public static PlayerCharacter Instance { get; private set; }
 
     public PlayerController Controller { get; private set; }
+    public bool IsActiveInWorld { get; private set; }
 
     public int NumSpareParts
     {
@@ -35,6 +36,7 @@ public sealed class PlayerCharacter : Character
     private void Start()
     {
         PlayerSpawnEvent?.Invoke(this);
+        IsActiveInWorld = true;
     }
 
     private void OnEnable()
@@ -56,6 +58,7 @@ public sealed class PlayerCharacter : Character
         Controller.enabled = false;
         engineSource.Stop();
         GetComponent<Rigidbody>().velocity = Vector3.zero;
+        IsActiveInWorld = false;
         PlayerDeathEvent?.Invoke(this);
         deathSequence.PlayAnimation();
     }

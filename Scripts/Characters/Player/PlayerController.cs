@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
     }
 
     public Boost Boost { get; private set; }
+    public LerpRotationToTarget Rotator { get => rotator; }
 
     [SerializeField]
     private List<Weapon> playerWeapons;
@@ -64,14 +65,17 @@ public class PlayerController : MonoBehaviour
         vModifiers = new HashSet<VelocityModifier>();
         AddVelocityModifier(playerVelocityModifier);
         Application.targetFrameRate = 60;
-        EquipWeapon(playerWeapons[0]);
+        foreach (Weapon weapon in playerWeapons)
+        {
+            if (weapon.gameObject.activeSelf)
+            {
+                EquipWeapon(weapon);
+            }
+        }
     }
 
     private void Update()
     {
-        //print framerate
-        //Debug.Log(1 / Time.deltaTime);
-
         if (PlayerInputEnabled)
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -83,6 +87,12 @@ public class PlayerController : MonoBehaviour
             {
                 UpgradeMenu.Instance.enabled = true;
             }
+
+            if (WeaponEnabled)
+            {
+                FireWeapon();
+            }
+
             SwitchWeapons();
         }
     }
@@ -99,10 +109,6 @@ public class PlayerController : MonoBehaviour
             if (MouseRotateEnabled)
             {
                 RotatePlayer();
-            }
-            if (WeaponEnabled)
-            {
-                FireWeapon();
             }
         }
     }
@@ -134,7 +140,9 @@ public class PlayerController : MonoBehaviour
         float moveZ = Input.GetAxisRaw("Vertical");
         Vector3 moveDirection = new Vector3(moveX, 0f, moveZ).normalized;
 
-        if (BoostEnabled && Input.GetKeyDown(KeyCode.Space))
+        //boost player
+        if (BoostEnabled && moveDirection.magnitude > 0 &&
+            Input.GetKeyDown(KeyCode.Space))
         {
             Boost.AttemptBoost(moveDirection);
         }
@@ -192,7 +200,11 @@ public class PlayerController : MonoBehaviour
 
     private void FireWeapon()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonUp(0))
+        {
+            equippedWeapon.CancelFireWeapon();
+        }
+        else if (Input.GetMouseButton(0))
         {
             equippedWeapon.AttemptFireWeapon();
         }
@@ -208,6 +220,10 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             newWeapon = playerWeapons[1];
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            newWeapon = playerWeapons[2];
         }
         EquipWeapon(newWeapon);
     }

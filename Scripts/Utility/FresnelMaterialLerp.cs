@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+//bugged if fresnel colors are the same
 public class FresnelMaterialLerp : PercentageLerper
 {
     public override float CurrentLerpPercentage

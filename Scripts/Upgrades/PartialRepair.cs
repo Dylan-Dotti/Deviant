@@ -26,8 +26,8 @@ public class PartialRepair : PlayerUpgrade
 
     public override void ApplyUpgrade()
     {
-        playerHealth.CurrentHealth += Cost;
         base.ApplyUpgrade();
+        playerHealth.CurrentHealth += Cost;
     }
 
     public override void UpdateStatsDisplays()

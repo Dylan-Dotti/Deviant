@@ -6,10 +6,12 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class RangedDrone : Enemy
 {
+    public override EnemyType EType => EnemyType.RangedDrone;
+
     private enum CombatMode { Chase, Retreat, Strafe };
 
     [SerializeField]
-    private Weapon weapon;
+    private DualBlaster blaster;
 
     [Header("Ranges")]
     [SerializeField]
@@ -20,6 +22,7 @@ public class RangedDrone : Enemy
     private float AttackRange = 10;
 
     private CombatMode cMode = CombatMode.Chase;
+    private DroneDeathAnimation deathAnimation;
     private NavMeshAgent navAgent;
     private LerpRotationToTarget rotator;
     private float rotatorStartSpeed;
@@ -28,6 +31,7 @@ public class RangedDrone : Enemy
     protected override void Awake()
     {
         base.Awake();
+        deathAnimation = GetComponent<DroneDeathAnimation>();
         navAgent = GetComponent<NavMeshAgent>();
         rotator = GetComponentInChildren<LerpRotationToTarget>();
         rotatorStartSpeed = rotator.AngularVelocityDegrees;
@@ -66,7 +70,7 @@ public class RangedDrone : Enemy
 
         if (angleBetween <= 22.5f && playerDist <= AttackRange)
         {
-            weapon.AttemptFireWeapon();
+            blaster.AttemptFireWeapon();
             rotator.AngularVelocityDegrees = rotatorStartSpeed;
         }
         else
@@ -76,11 +80,33 @@ public class RangedDrone : Enemy
         }
     }
 
+    public override void Die()
+    {
+        base.Die();
+        StopAllCoroutines();
+        enabled = false;
+        rotator.enabled = false;
+        deathAnimation.PlayAnimation();
+    }
+
     protected override void OnPlayerDeath(Character c)
     {
-        StopAllCoroutines();
-        navAgent.ResetPath();
-        enabled = false;
+        base.OnPlayerDeath(c);
+        cMode = CombatMode.Strafe;
+    }
+
+    protected override void ApplyScalars()
+    {
+        Debug.Log(EType.ToString());
+        base.ApplyScalars();
+        int oldMin = blaster.ProjectileDmgRange.Min;
+        int oldMax = blaster.ProjectileDmgRange.Max;
+        Debug.Log(oldMin + " " + oldMax);
+        float dmgScalar = EnemyStrengthScalars.GetDamageScalar(EType);
+        blaster.ProjectileDmgRange = new IntRange(Mathf.RoundToInt(
+            oldMin * dmgScalar), Mathf.RoundToInt(oldMax * dmgScalar));
+        Debug.Log(blaster.ProjectileDmgRange.Min + " " +
+            blaster.ProjectileDmgRange.Max);
     }
 
     private Vector3 GetChasePosition()
@@ -153,7 +179,7 @@ public class RangedDrone : Enemy
         yield return new WaitForSeconds(1.5f);
         navAgent.enabled = true;
         StartCoroutine(SetMoveTargetPeriodic());
-        enabled = true;
+        enabled = PlayerCharacter.Instance.IsActiveInWorld;
     }
 
     private IEnumerator SetMoveTargetPeriodic()
@@ -189,23 +215,4 @@ public class RangedDrone : Enemy
             yield return new WaitForSeconds(0.66f);
         }
     }
-
-    /*private void OnDrawGizmos()
-    {
-        foreach (Vector3 direction in GetRandomMoveDirections(
-            -rotator.transform.forward, rotator.transform.right, 4, 3))
-        {
-            Gizmos.DrawRay(transform.position, direction * 4);
-        }
-        foreach (Vector3 direction in GetRandomMoveDirections(
-            -rotator.transform.right, rotator.transform.forward, 4, 3))
-        {
-            Gizmos.DrawRay(transform.position, direction * 4);
-        }
-        foreach (Vector3 direction in GetRandomMoveDirections(
-            rotator.transform.right, rotator.transform.forward, 4, 3))
-        {
-            Gizmos.DrawRay(transform.position, direction * 4);
-        }
-    }*/
 }

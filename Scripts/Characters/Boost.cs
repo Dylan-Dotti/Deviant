@@ -13,7 +13,24 @@ public class Boost : MonoBehaviour
         get => chargeCooldown;
         set => chargeCooldown = value;
     }
-    public int MaxNumCharges { get; set; } = 1;
+
+    public int MaxNumCharges
+    {
+        get => maxNumCharges;
+        set
+        {
+            if (value > maxNumCharges && CurrentChargeFillPercent == 1)
+            {
+                timeSinceLastBoostRecharge = 0;
+            }
+            maxNumCharges = value;
+        }
+    }
+
+    public int CurrentNumCharges { get; private set; }
+    public float CurrentChargeFillPercent => Mathf.Clamp01(
+        timeSinceLastBoostRecharge / chargeCooldown);
+
     public bool IsBoosting { get; private set; }
 
     [SerializeField]
@@ -27,32 +44,32 @@ public class Boost : MonoBehaviour
     [SerializeField]
     private AudioSource boostSound;
 
-    private int currentNumCharges;
-    private float timeSinceLastBoost;
+    private int maxNumCharges = 1;
+    private float timeSinceLastBoostRecharge;
     private PlayerController pController;
 
     private void Awake()
     {
         IsBoosting = false;
-        currentNumCharges = MaxNumCharges;
-        timeSinceLastBoost = chargeCooldown;
+        CurrentNumCharges = MaxNumCharges;
+        timeSinceLastBoostRecharge = chargeCooldown;
         pController = PlayerCharacter.Instance.Controller;
     }
 
     private void Update()
     {
-        timeSinceLastBoost += Time.deltaTime;
-        if (timeSinceLastBoost >= chargeCooldown && 
-            currentNumCharges < MaxNumCharges)
+        timeSinceLastBoostRecharge += Time.deltaTime;
+        if (timeSinceLastBoostRecharge >= chargeCooldown && 
+            CurrentNumCharges < MaxNumCharges)
         {
-            currentNumCharges += 1;
-            timeSinceLastBoost = 0;
+            CurrentNumCharges += 1;
+            timeSinceLastBoostRecharge = 0;
         }
     }
 
     public void AttemptBoost(Vector3 boostDirection)
     {
-        if (!IsBoosting && currentNumCharges > 0)
+        if (!IsBoosting && CurrentNumCharges > 0)
         {
             ActivateBoost(boostDirection);
         }
@@ -61,9 +78,12 @@ public class Boost : MonoBehaviour
     public void ActivateBoost(Vector3 boostDirection)
     {
         StartCoroutine(BoostSequence(boostDirection));
-        currentNumCharges = Mathf.Max(currentNumCharges - 1, 0);
+        if (CurrentNumCharges == MaxNumCharges)
+        {
+            timeSinceLastBoostRecharge = 0;
+        }
+        CurrentNumCharges = Mathf.Max(CurrentNumCharges - 1, 0);
         boostSound.Play();
-        timeSinceLastBoost = 0;
     }
 
     public void CancelBoost()

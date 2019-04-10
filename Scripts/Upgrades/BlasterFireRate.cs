@@ -10,11 +10,12 @@ public class BlasterFireRate : PlayerUpgrade
     {
         get => 60 * ShotsPerSecond;
     }
+    public override int MaxNumPurchases => 10;
 
     [SerializeField]
     private DualBlaster playerBlaster;
     [SerializeField]
-    private float percentageIncreaseMultiplier = 0.1f;
+    private float percentageIncreaseMultiplier = 0.03f;
     [SerializeField]
     private StatsDisplay fireRateDisplay;
     [SerializeField]

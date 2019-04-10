@@ -1,10 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerMagnet))]
 public class Vortex : Enemy
 {
+    public override EnemyType EType => EnemyType.Vortex;
+
     [SerializeField]
     private float moveSpeed = 1f;
 
@@ -22,17 +23,19 @@ public class Vortex : Enemy
 
     public override void Die()
     {
-        EnemyDeathEvent?.Invoke(this);
+        base.Die();
         deathSequence.PlayAnimation();
     }
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         magnet.enabled = true;
     }
 
-    private void OnDisable()
+    protected virtual void OnDisable()
     {
+        base.OnDisable();
         magnet.enabled = false;
     }
 

@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class DetectionZone<T> : MonoBehaviour where T : Component
 {
-    public HashSet<T> DetectedComponents
+    public IEnumerable<T> DetectedComponents
     {
         get
         {
@@ -12,6 +12,8 @@ public class DetectionZone<T> : MonoBehaviour where T : Component
             return detectedComponents;
         }
     }
+
+    public ICollection<string> DetectableTags => detectableTags;
 
     [SerializeField]
     private List<string> detectableTags;
@@ -27,14 +29,14 @@ public class DetectionZone<T> : MonoBehaviour where T : Component
     {
         if (detectableTags.Contains(other.tag))
         {
-            DetectedComponents.Add(other.transform.root.
+            detectedComponents.Add(other.transform.root.
                 GetComponentInChildren<T>());
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        DetectedComponents.Remove(other.transform.root.
+        detectedComponents.Remove(other.transform.root.
             GetComponentInChildren<T>());
     }
 

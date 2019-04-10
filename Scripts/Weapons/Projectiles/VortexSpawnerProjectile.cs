@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class VortexSpawnerProjectile : Projectile
@@ -37,10 +36,5 @@ public class VortexSpawnerProjectile : Projectile
     {
         hitParticlesRenderer.material = particleRenderer.material;
         base.OnTriggerEnter(other);
-    }
-
-    public override void ReturnToPool()
-    {
-        Destroy(gameObject);
     }
 }

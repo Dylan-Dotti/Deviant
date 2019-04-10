@@ -6,12 +6,11 @@ public abstract class Weapon : MonoBehaviour
 
     public event WeaponDelegate WeaponFiredEvent;
 
-    //public virtual bool WeaponEnabled { get; set; } = true;
     public float TimeSinceLastFire { get; private set; }
     public float FireRate
     {
-        get { return fireRate; }
-        set { fireRate = value; }
+        get => fireRate;
+        set => fireRate = value;
     }
 
     [SerializeField]
@@ -43,6 +42,11 @@ public abstract class Weapon : MonoBehaviour
         TimeSinceLastFire = 0;
     }
 
+    public virtual void CancelFireWeapon()
+    {
+
+    }
+
     public virtual void TurnToFace(Vector3 targetPos)
     {
         transform.LookAt(targetPos);
@@ -50,6 +54,6 @@ public abstract class Weapon : MonoBehaviour
 
     public virtual void ResetOrientation()
     {
-        transform.rotation = originalOrientation;
+        transform.localRotation = originalOrientation;
     }
 }

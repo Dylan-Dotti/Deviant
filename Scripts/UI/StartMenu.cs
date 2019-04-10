@@ -12,6 +12,8 @@ public class StartMenu : MonoBehaviour
     [SerializeField]
     private List<StartMenuButton> menuButtons;
     [SerializeField]
+    private GameObject creditsDisplay;
+    [SerializeField]
     private StartMenuCPU cpu;
     [SerializeField]
     private SceneTransitionPanel transitionPanel;
@@ -28,6 +30,7 @@ public class StartMenu : MonoBehaviour
     private Dictionary<TextLerpWave.WaveActivationSequence, Coroutine> titleActivations;
 
     private LerpWaveText mouseoverText;
+    private AudioSource titleMusic;
 
     private void Awake()
     {
@@ -56,6 +59,9 @@ public class StartMenu : MonoBehaviour
             buttonsTextGrid.MouseClickEvent += OnTextMouseClick;
 
             lerpWave = GetComponent<TextLerpWave>();
+            titleMusic = GetComponent<AudioSource>();
+
+            Application.targetFrameRate = 60;
         }
     }
 
@@ -76,7 +82,12 @@ public class StartMenu : MonoBehaviour
 
     public void OpenCreditsMenu()
     {
+        creditsDisplay.SetActive(true);
+    }
 
+    public void CloseCreditsMenu()
+    {
+        creditsDisplay.SetActive(false);
     }
 
     public void ExitGame()
@@ -107,9 +118,10 @@ public class StartMenu : MonoBehaviour
     {
         transitionPanel.gameObject.SetActive(true);
         yield return new WaitForSeconds(1);
-        yield return transitionPanel.FadeForward();
-        transitionPanel.gameObject.SetActive(false);
         titlePeriodicLerpRoutine = StartCoroutine(LerpTitleRandomPeriodic());
+        titleMusic.Play();
+        yield return transitionPanel.FadeTransparent();
+        transitionPanel.gameObject.SetActive(false);
     }
 
     private IEnumerator LerpTitleRandomPeriodic()
@@ -131,7 +143,7 @@ public class StartMenu : MonoBehaviour
 
     private IEnumerator FillAllBlue(LerpWaveText baseText)
     {
-        cpu.LerpBlue();
+        cpu.FillAllBlue();
         List<List<LerpWaveText>> textRows = new List<List<LerpWaveText>>();
         textRows.Add(titleTextComponents);
         menuButtons.ForEach(b => textRows.Add(b.TextComponents));
@@ -143,7 +155,7 @@ public class StartMenu : MonoBehaviour
     {
         yield return StartCoroutine(FillAllBlue(mouseoverText));
         transitionPanel.gameObject.SetActive(true);
-        yield return transitionPanel.FadeReverse();
+        yield return transitionPanel.FadeOpaque();
         loadBar.gameObject.SetActive(true);
         AsyncOperation loadProgress = SceneManager.LoadSceneAsync(
             SceneManager.GetActiveScene().buildIndex + 1);

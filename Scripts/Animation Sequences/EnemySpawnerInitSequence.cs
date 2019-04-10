@@ -1,9 +1,8 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(EnemySpawnerPeriodic))]
+[RequireComponent(typeof(EnemySpawner))]
 public class EnemySpawnerInitSequence : AnimationSequence
 {
     [SerializeField]
@@ -29,11 +28,6 @@ public class EnemySpawnerInitSequence : AnimationSequence
     private void Start()
     {
         PlayAnimation();
-    }
-
-    public override void CancelSequence()
-    {
-        StopAllCoroutines();
     }
 
     protected override IEnumerator AnimationSequenceCR()
@@ -103,7 +97,7 @@ public class EnemySpawnerInitSequence : AnimationSequence
             yield return null;
         }
         IsPlaying = false;
-        GetComponent<EnemySpawnerPeriodic>().enabled = true;
+        GetComponent<EnemySpawner>().enabled = true;
         Destroy(this);
     }
 }

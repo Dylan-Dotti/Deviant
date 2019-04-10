@@ -20,7 +20,7 @@ public class CombatSceneInitializer : MonoBehaviour
     private IEnumerator InitSequence()
     {
         transitionPanel.gameObject.SetActive(true);
-        yield return transitionPanel.FadeForward();
+        yield return transitionPanel.FadeTransparent();
         transitionPanel.gameObject.SetActive(false);
         yield return playerSpawner.PlayAnimation();
         playerUI.SetActive(true);

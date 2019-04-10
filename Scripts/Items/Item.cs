@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Item : MonoBehaviour
@@ -29,13 +28,16 @@ public abstract class Item : MonoBehaviour
 
     private void OnEnable()
     {
+        PlayerCharacter.Instance.PlayerDeathEvent += OnPlayerDeath;
         itemCollider.enabled = true;
         StartCoroutine(AttemptMoveToPlayerCR());
     }
 
     private void OnDisable()
     {
+        PlayerCharacter.Instance.PlayerDeathEvent -= OnPlayerDeath;
         isMovingToPlayer = false;
+        itemCollider.enabled = false;
         StopAllCoroutines();
     }
 
@@ -67,6 +69,11 @@ public abstract class Item : MonoBehaviour
 
     public abstract void MergeWithPlayer();
 
+    protected virtual void OnPlayerDeath(Character c)
+    {
+        enabled = false;
+    }
+
     private IEnumerator MoveToPlayerCR()
     {
         isMovingToPlayer = true;
@@ -87,7 +94,7 @@ public abstract class Item : MonoBehaviour
         yield return new WaitForSeconds(0.25f);
         while (Vector3.Distance(transform.position,
             player.transform.position) > AutoPickupRadius ||
-            rbody.velocity.magnitude > 1f)
+            rbody.velocity.magnitude > 1.75f)
         {
             yield return null;
         }

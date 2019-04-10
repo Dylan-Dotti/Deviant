@@ -5,15 +5,12 @@ using UnityEngine;
 public class EnemySpawnerPeriodic : EnemySpawner
 {
     [System.Serializable]
-    public class PeriodicSpawn
+    protected class PeriodicSpawn : Spawn
     {
-        public EnemyType EType => eType;
         public FloatRange InitialSpawnTime => initialSpawnTime;
         public FloatRange Cooldown => cooldown;
         public int NumSpawns => numSpawns;
 
-        [SerializeField]
-        private EnemyType eType;
         [SerializeField]
         private FloatRange initialSpawnTime = new FloatRange(1, 1);
         [SerializeField]
@@ -22,9 +19,9 @@ public class EnemySpawnerPeriodic : EnemySpawner
         private int numSpawns = int.MaxValue;
 
         public PeriodicSpawn(EnemyType eType, FloatRange initialSpawnTime,
-            FloatRange cooldown, int numSpawns = int.MaxValue)
+            FloatRange cooldown, int numSpawns = int.MaxValue) :
+            base(eType)
         {
-            this.eType = eType;
             this.initialSpawnTime = initialSpawnTime;
             this.cooldown = cooldown;
             this.numSpawns = numSpawns;
@@ -33,11 +30,6 @@ public class EnemySpawnerPeriodic : EnemySpawner
 
     [SerializeField]
     protected List<PeriodicSpawn> spawns;
-
-    protected virtual void Start()
-    {
-        SpawnPeriodically();
-    }
 
     protected override void Update()
     {
@@ -49,16 +41,21 @@ public class EnemySpawnerPeriodic : EnemySpawner
         }
     }
 
+    public override void StartSpawning()
+    {
+        SpawnPeriodically();
+    }
+
     public void SpawnPeriodically()
     {
         StopAllCoroutines();
         foreach (PeriodicSpawn pSpawn in spawns)
         {
-            StartCoroutine(SpawnPeriodically(pSpawn));
+            StartCoroutine(SpawnPeriodicallyCR(pSpawn));
         }
     }
 
-    private IEnumerator SpawnPeriodically(PeriodicSpawn spawn)
+    private IEnumerator SpawnPeriodicallyCR(PeriodicSpawn spawn)
     {
         if (spawn.NumSpawns != 0)
         {

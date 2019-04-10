@@ -21,17 +21,14 @@ public abstract class Character : MonoBehaviour
         Die();
     }
 
-    public virtual void Die()
-    {
-        Destroy(gameObject);
-    }
+    public abstract void Die();
 
-    public Coroutine LerpScaleOverDuration(List<Transform> lerpObjects, float newScale, float duration)
+    public Coroutine LerpScaleOverDuration(IEnumerable<Transform> lerpObjects, float newScale, float duration)
     {
         return StartCoroutine(LerpScale(lerpObjects, newScale, duration));
     }
 
-    private IEnumerator LerpScale(List<Transform> lerpObjects, float newScale, float duration)
+    private IEnumerator LerpScale(IEnumerable<Transform> lerpObjects, float newScale, float duration)
     {
         Dictionary<Transform, Vector3> originalScales = lerpObjects.ToDictionary(
             t => t, t => new Vector3(t.localScale.x, t.localScale.y, t.localScale.z));

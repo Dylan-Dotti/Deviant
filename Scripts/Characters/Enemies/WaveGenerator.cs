@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class WaveGenerator : MonoBehaviour
 {
@@ -31,10 +32,9 @@ public class WaveGenerator : MonoBehaviour
 
     public static WaveGenerator Instance { get; private set; }
 
-    public delegate void WaveGeneratorWaveDelegate(int waveNum);
-
-    public event WaveGeneratorWaveDelegate WaveStartedEvent;
-    public event WaveGeneratorWaveDelegate WaveEndedEvent;
+    public event UnityAction<int> WaveStartedEvent;
+    public event UnityAction<int> WaveEndedEvent;
+    public event UnityAction AllSpawnsCompletedEvent;
 
     [SerializeField]
     private List<EnemySpawner> spawnerPrefabs;
@@ -48,7 +48,9 @@ public class WaveGenerator : MonoBehaviour
     {
         if (Instance == null)
         {
+            Debug.Log("Wave generator awake");
             Instance = this;
+            //PlayerCharacter.PlayerDeathEvent += c => StopAllCoroutines();
             Enemy.EnemySpawnedEvent += c => numActiveEnemies++;
             Enemy.EnemyDeathEvent += c => numActiveEnemies--;
             spawnLocations = new List<PortalSpawnLocation>();
@@ -58,11 +60,23 @@ public class WaveGenerator : MonoBehaviour
                 spawnLocations.Add(new PortalSpawnLocation(
                     portalSpawnPoints.GetChild(i)));
             }
+            //EnemyStrengthScalars.Init();
         }
+    }
+
+    private void Start()
+    {
+        StartNextWave();
+    }
+
+    private void OnEnable()
+    {
+        PlayerCharacter.Instance.PlayerDeathEvent += OnPlayerDeath;
     }
 
     private void OnDisable()
     {
+        PlayerCharacter.Instance.PlayerDeathEvent -= OnPlayerDeath;
         StopAllCoroutines();
     }
 
@@ -71,9 +85,14 @@ public class WaveGenerator : MonoBehaviour
         StopAllCoroutines();
         currentWaveCount++;
         Debug.Log("Starting wave " + currentWaveCount);
-        currentWave = GenerateRandomWave(6, 2);
-        StartCoroutine(SpawnWaveCR(currentWave, new FloatRange(15f, 20)));
+        currentWave = GenerateRandomWave(3, 2);
+        StartCoroutine(SpawnWaveCR(currentWave, new FloatRange(14f, 17.5f)));
         WaveStartedEvent?.Invoke(currentWaveCount);
+    }
+
+    private void OnPlayerDeath(Character c)
+    {
+        enabled = false;
     }
 
     private void EndCurrentWave()
@@ -136,6 +155,10 @@ public class WaveGenerator : MonoBehaviour
         }
         while (numSpawners > 0 || numActiveEnemies > 0)
         {
+            if (numSpawners == 0)
+            {
+                AllSpawnsCompletedEvent?.Invoke();
+            }
             yield return null;
         }
         EndCurrentWave();

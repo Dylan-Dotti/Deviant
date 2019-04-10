@@ -1,10 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class LaserCube : Enemy
 {
+    public override EnemyType EType => EnemyType.LaserCube;
+
     private enum CombatMode { Idle, SingleLaserSequence, QuadLaserSequence }
 
     [SerializeField]
@@ -21,6 +22,7 @@ public class LaserCube : Enemy
 
     private CombatMode mode = CombatMode.Idle;
 
+    private LaserCubeDeathAnimation deathAnimation;
     private IdleRotate rotateBehavior;
     private IdleWander wanderBehavior;
     private Rigidbody rbody;
@@ -30,6 +32,7 @@ public class LaserCube : Enemy
     protected override void Awake()
     {
         base.Awake();
+        deathAnimation = GetComponent<LaserCubeDeathAnimation>();
         rotateBehavior = GetComponentInChildren<IdleRotate>();
         wanderBehavior = GetComponent<IdleWander>();
         rbody = GetComponent<Rigidbody>();
@@ -56,11 +59,6 @@ public class LaserCube : Enemy
         }
     }
 
-    private void OnDisable()
-    {
-        StopAllCoroutines();
-    }
-
     public void StartQuadLaserSequence()
     {
         if (mode != CombatMode.QuadLaserSequence)
@@ -70,28 +68,65 @@ public class LaserCube : Enemy
         }
     }
 
+    public override void Die()
+    {
+        enabled = false;
+        rotateBehavior.enabled = false;
+        wanderBehavior.enabled = false;
+        StopAllCoroutines();
+        CancelWeapon();
+        EnemyDeathEvent?.Invoke(this);
+        deathAnimation.PlayAnimation();
+    }
+
     protected override void OnPlayerDeath(Character c)
     {
+        base.OnPlayerDeath(c);
         StopAllCoroutines();
+        CancelWeapon();
+    }
+
+    protected override void ApplyScalars()
+    {
+        base.ApplyScalars();
+        int oldMin = mainQuadLaser.LaserDamagePerTick.Min;
+        int oldMax = mainQuadLaser.LaserDamagePerTick.Max;
+        float dmgScalar = EnemyStrengthScalars.GetDamageScalar(EType);
+        mainQuadLaser.LaserDamagePerTick = new IntRange(Mathf.RoundToInt(
+            oldMin * dmgScalar), Mathf.RoundToInt(oldMax * dmgScalar));
+    }
+
+    private void CancelWeapon()
+    {
         if (mainQuadLaser.gameObject.activeInHierarchy)
         {
-            mainQuadLaser.CancelFireWeapon();
+            foreach (SingleLaser laser in mainQuadLaser.Lasers)
+            {
+                if (laser.IsFiring)
+                {
+                    laser.CancelAndLerp(0, 1);
+                }
+            }
         }
         else
         {
             warningQuadLaser.CancelFireWeapon();
         }
-        enabled = false;
     }
 
     protected override IEnumerator SpawnSequence()
     {
+        enabled = false;
         yield return new WaitForSeconds(3);
         GetComponent<NavMeshAgent>().enabled = true;
         wanderBehavior.enabled = true;
         timeSinceLastAttack = attackCooldown;
         yield return new WaitForSeconds(3);
-        StartCoroutine(PeriodicQuadLaserSequence());
+        if (PlayerCharacter.Instance.IsActiveInWorld)
+        {
+            enabled = true;
+            StartCoroutine(PeriodicQuadLaserSequence());
+        }
     }
 
     private IEnumerator SingleLaserSequenceCR()
@@ -257,7 +292,7 @@ public class LaserCube : Enemy
             warningQuadLaser.FireWeapon();
             yield return new WaitForSeconds(0.2f);
         }
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
         {
             warningQuadLaser.CancelFireWeapon();
             yield return new WaitForSeconds(0.125f);

@@ -40,30 +40,33 @@ public class HealthBar : MonoBehaviour
     private float fadeDelay = 5f;
 
     private float timeSinceLastChange;
-    private float foregroundStartAlpha;
-    private float backgroundStartAlpha;
-
+    //private float foregroundStartAlpha;
+    //private float backgroundStartAlpha;
+    
     private void Start()
     {
         timeSinceLastChange = fadeDelay;
-        foregroundStartAlpha = healthBarForeground.color.a;
-        backgroundStartAlpha = healthBarBackground.color.a;
+        //foregroundStartAlpha = healthBarForeground.color.a;
+        //backgroundStartAlpha = healthBarBackground.color.a;
         if (fadeEnabled)
         {
-            healthBarForeground.color = new Color(healthBarForeground.color.r, healthBarForeground.color.g,
-                healthBarForeground.color.b, 0);
-            healthBarBackground.color = new Color(healthBarBackground.color.r, healthBarBackground.color.g,
-                healthBarBackground.color.b, 0);
+            healthBarForeground.color = new Color(healthBarForeground.color.r, 
+                healthBarForeground.color.g, healthBarForeground.color.b, 0);
+            healthBarBackground.color = new Color(healthBarBackground.color.r,
+                healthBarBackground.color.g, healthBarBackground.color.b, 0);
+            greenColor = new Color(greenColor.r, greenColor.g, greenColor.b, 0);
+            yellowColor = new Color(yellowColor.r, yellowColor.g, yellowColor.b, 0);
+            redColor = new Color(redColor.r, redColor.g, redColor.b, 0);
         }
-        enabled = false;
+        //enabled = false;
     }
 
     private void LateUpdate()
     {
-        if (timeSinceLastChange > fadeDelay)
+        if (timeSinceLastChange > fadeDelay && fadeEnabled)
         {
             FadeOut();
-            enabled = false;
+            //enabled = false;
         }
         timeSinceLastChange += Time.deltaTime;
     }
@@ -74,7 +77,11 @@ public class HealthBar : MonoBehaviour
             healthBarTransform.localScale.y, healthBarTransform.localScale.z);
 
         //change color
-        if (percentage >= yellowLerpEndPercentage && percentage <= yellowLerpStartPercentage)
+        if (percentage > yellowLerpStartPercentage)
+        {
+            healthBarForeground.color = greenColor;
+        }
+        else if (percentage >= yellowLerpEndPercentage && percentage <= yellowLerpStartPercentage)
         {
             float lerpPercentage = (yellowLerpStartPercentage - percentage) /
                 (yellowLerpStartPercentage - yellowLerpEndPercentage);
@@ -90,7 +97,7 @@ public class HealthBar : MonoBehaviour
         {
             healthBarForeground.color = redColor;
         }
-        //fade out
+        //fade in
         if (fadeEnabled)
         {
             timeSinceLastChange = 0f;
@@ -102,18 +109,18 @@ public class HealthBar : MonoBehaviour
     public void FadeIn()
     {
         StopAllCoroutines();
-        float duration = fadeDuration * (1f - healthBarForeground.color.a / foregroundStartAlpha);
+        float duration = fadeDuration * (1f - healthBarForeground.color.a);
         if (duration != 0)
         {
-            StartCoroutine(LerpAlpha(healthBarBackground, backgroundStartAlpha, duration));
-            StartCoroutine(LerpAlpha(healthBarForeground, foregroundStartAlpha, duration));
+            StartCoroutine(LerpAlpha(healthBarBackground, 0.56863f, duration));
+            StartCoroutine(LerpAlpha(healthBarForeground, 1, duration));
         }
     }
 
     public void FadeOut()
     {
         StopAllCoroutines();
-        float duration = fadeDuration * (healthBarForeground.color.a / foregroundStartAlpha);
+        float duration = fadeDuration * (healthBarForeground.color.a);
         if (duration != 0)
         {
             StartCoroutine(LerpAlpha(healthBarBackground, 0, duration));
@@ -121,23 +128,23 @@ public class HealthBar : MonoBehaviour
         }
     }
 
-    private IEnumerator LerpAlpha(Image lerpImage, float newAlpha, float duration)
+    private IEnumerator LerpAlpha(Image healthBar, float newAlpha, float duration)
     {
-        float startAlpha = lerpImage.color.a;
+        float startAlpha = healthBar.color.a;
         float lerpStartTime = Time.time;
         while (Time.time - lerpStartTime < fadeDuration)
         {
             float lerpPercentage = (Time.time - lerpStartTime) / duration;
             float lerpAlpha = Mathf.Lerp(startAlpha, newAlpha, lerpPercentage);
-            lerpImage.color = new Color(lerpImage.color.r, lerpImage.color.g,
-                lerpImage.color.b, lerpAlpha);
+            healthBar.color = new Color(healthBar.color.r, healthBar.color.g,
+                healthBar.color.b, lerpAlpha);
             greenColor = new Color(greenColor.r, greenColor.g, greenColor.b, lerpAlpha);
             yellowColor = new Color(yellowColor.r, yellowColor.g, yellowColor.b, lerpAlpha);
             redColor = new Color(redColor.r, redColor.g, redColor.b, lerpAlpha);
             yield return null;
         }
-        lerpImage.color = new Color(lerpImage.color.r, lerpImage.color.g,
-            lerpImage.color.b, newAlpha);
+        healthBar.color = new Color(healthBar.color.r, healthBar.color.g,
+            healthBar.color.b, newAlpha);
         greenColor = new Color(greenColor.r, greenColor.g, greenColor.b, newAlpha);
         yellowColor = new Color(yellowColor.r, yellowColor.g, yellowColor.b, newAlpha);
         redColor = new Color(redColor.r, redColor.g, redColor.b, newAlpha);

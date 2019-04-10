@@ -55,6 +55,11 @@ public class WeaponRecoil : MonoBehaviour
         }
     }
 
+    public void StopRecoil()
+    {
+        enabled = false;
+    }
+
     private IEnumerator RecoilRecover()
     {
         while (true)

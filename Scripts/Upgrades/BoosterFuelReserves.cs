@@ -2,8 +2,8 @@
 
 public class BoosterFuelReserves : PlayerUpgrade
 {
-    [SerializeField]
-    private int maxNumPurchases = 2;
+    public override int MaxNumPurchases => 2;
+
     [SerializeField]
     private StatsDisplay maxChargesDisplay;
 
@@ -24,7 +24,6 @@ public class BoosterFuelReserves : PlayerUpgrade
     {
         playerBoost.MaxNumCharges += 1;
         base.ApplyUpgrade();
-        Purchasable = NumTimesPurchased < maxNumPurchases;
         if (Purchasable)
         {
             Cost *= 2;

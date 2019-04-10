@@ -24,6 +24,8 @@ public class SingleLaser : ToggleWeapon
         set => damagePerTick = value;
     }
 
+    protected Vector3 TargetPosition { get; private set; }
+
     [SerializeField]
     private IntRange damagePerTick = new IntRange(1, 1);
     [SerializeField]
@@ -42,11 +44,10 @@ public class SingleLaser : ToggleWeapon
     private List<string> collidableTags;
 
     private AudioSource laserSound;
-    private Vector3 targetPosition;
     private float timeSinceLastDamage;
     private float timeSinceLastParticles;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         laserSound = GetComponent<AudioSource>();
     }
@@ -58,17 +59,20 @@ public class SingleLaser : ToggleWeapon
         timeSinceLastParticles += Time.deltaTime;
         if (laser.enabled)
         {
+            RaycastHit closestHit = GetClosestHit();
             if (timeSinceLastDamage >= damageTickInterval)
             {
-                ApplyDamage();
+                DamageTarget(closestHit);
             }
             if (timeSinceLastParticles >= particleTickInterval &&
                 hitParticles != null)
             {
-                RaycastHit closestHit = GetClosestHit();
                 hitParticles.transform.position = closestHit.point;
                 hitParticles.transform.parent = closestHit.transform;
-                hitParticles.Play();
+                if (hitParticles.transform.parent != null)
+                {
+                    hitParticles.Play();
+                }
                 timeSinceLastParticles = 0;
             }
         }
@@ -116,6 +120,10 @@ public class SingleLaser : ToggleWeapon
         {
             laserSound.Stop();
         }
+        if (hitParticles != null)
+        {
+            hitParticles.transform.parent = transform.root;
+        }
     }
 
     public void CancelAndLerp(float lerpEndWidth, float lerpDuration)
@@ -126,7 +134,7 @@ public class SingleLaser : ToggleWeapon
     public override void TurnToFace(Vector3 targetPos)
     {
         base.TurnToFace(targetPos);
-        targetPosition = targetPos;
+        TargetPosition = targetPos;
         float segmentLength = GetLaserLength() / (laser.positionCount - 1);
         for (int i = 0; i < laser.positionCount; i++)
         {
@@ -134,18 +142,12 @@ public class SingleLaser : ToggleWeapon
         }
     }
 
-    private float GetLaserLength()
-    {
-        return GetForwardRaycastHits().Min(h => Vector3.Distance(
-            FirePoint.transform.position, h.point)) + 0.1f;
-    }
-
     public void LerpWidthOverDuration(float endWidth, float duration)
     {
         StartCoroutine(LerpWidth(endWidth, duration));
     }
 
-    public float LerpWidthOverAdjustedDuration(float startWidth, 
+    public float LerpWidthOverAdjustedDuration(float startWidth,
         float endWidth, float maxDuration)
     {
         float currentWidth = laser.startWidth;
@@ -155,12 +157,44 @@ public class SingleLaser : ToggleWeapon
         return lerpDuration;
     }
 
-    private IEnumerable<RaycastHit> GetForwardRaycastHits()
+    protected virtual void ApplyDamage(RaycastHit hitTarget, 
+        Health targetHealth, int damage)
+    {
+        targetHealth.CurrentHealth -= damage;
+    }
+
+    private void DamageTarget(RaycastHit hitTarget)
+    {
+        //RaycastHit hitTarget = GetClosestHit();
+        //if (hitTarget.transform != null)
+        //{
+        Health targetHealth = hitTarget.transform.root.
+            GetComponentInChildren<Health>();
+        if (targetHealth != null)
+        {
+            ApplyDamage(hitTarget, targetHealth, 
+                damagePerTick.RandomRangeValue);
+            timeSinceLastDamage = 0;
+        }
+        //}
+    }
+
+    private float GetLaserLength()
+    {
+        if (GetForwardRaycastHits().Length > 0)
+        {
+            return GetForwardRaycastHits().Min(h => Vector3.Distance(
+                FirePoint.transform.position, h.point)); //+ 0.03f;
+        }
+        return 5;
+    }
+
+    private RaycastHit[] GetForwardRaycastHits()
     {
         Ray ray = new Ray(firePoint.position, firePoint.forward);
-        float targetDist = Vector3.Distance(firePoint.position, targetPosition);
+        float targetDist = Vector3.Distance(firePoint.position, TargetPosition);
         RaycastHit[] hits = Physics.RaycastAll(ray, targetDist);
-        return hits.Where(h => collidableTags.Contains(h.collider.tag));
+        return hits.Where(h => collidableTags.Contains(h.collider.tag)).ToArray();
     }
 
     private RaycastHit GetClosestHit()
@@ -178,17 +212,6 @@ public class SingleLaser : ToggleWeapon
             }
         }
         return closestHit;
-    }
-
-    private void ApplyDamage()
-    {
-        Health targetHealth = GetClosestHit().transform.root.
-            GetComponentInChildren<Health>();
-        if (targetHealth != null)
-        {
-            targetHealth.CurrentHealth -= damagePerTick.RandomRangeValue;
-            timeSinceLastDamage = 0;
-        }
     }
 
     private IEnumerator LerpWidth(float lerpEndWidth, float duration)

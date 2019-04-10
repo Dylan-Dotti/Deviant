@@ -1,11 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class EnemySpawner : MonoBehaviour
 {
-    public delegate void EnemySpawnerDelegate();
-    public event EnemySpawnerDelegate EnemySpawnerDissipateEvent;
+    [System.Serializable]
+    protected class Spawn
+    {
+        public EnemyType EType => eType;
+
+        [SerializeField]
+        private EnemyType eType;
+
+        public Spawn(EnemyType eType)
+        {
+            this.eType = eType;
+        }
+    }
+
+    public event UnityAction EnemySpawnerDissipateEvent;
 
     public float TimeSinceLastSpawn { get; private set; }
 
@@ -18,23 +32,37 @@ public abstract class EnemySpawner : MonoBehaviour
         dissipateSequence = GetComponent<EnemySpawnerDissipate>();
     }
 
+    protected virtual void Start()
+    {
+        StartSpawning();
+    }
+
+    private void OnEnable()
+    {
+        PlayerCharacter.Instance.PlayerDeathEvent += OnPlayerDeath;
+    }
+
+    private void OnDisable()
+    {
+        PlayerCharacter.Instance.PlayerDeathEvent -= OnPlayerDeath;
+    }
+
     protected virtual void Update()
     {
         TimeSinceLastSpawn += Time.deltaTime;
     }
 
-    public void Dissipate()
+    public abstract void StartSpawning();
+
+    public virtual void StopSpawning()
     {
         StopAllCoroutines();
-        if (EnemySpawnerDissipateEvent != null)
-        {
-            Debug.Log("Dissipate event");
-            EnemySpawnerDissipateEvent();
-        }
-        else
-        {
-            Debug.Log("No subscribers");
-        }
+    }
+
+    public void Dissipate()
+    {
+        StopSpawning();
+        EnemySpawnerDissipateEvent?.Invoke();
         dissipateSequence.PlayAnimation();
     }
 
@@ -67,6 +95,12 @@ public abstract class EnemySpawner : MonoBehaviour
     {
         Rigidbody enemyRb = enemy.GetComponent<Rigidbody>();
         enemyRb.AddForce(launchVelocity, ForceMode.VelocityChange);
+    }
+
+    private void OnPlayerDeath(Character c)
+    {
+        StopAllCoroutines();
+        DissipateAfterSeconds(Random.Range(10, 20));
     }
 
     protected Vector3 GetIdealRandomLaunchDirection(int numRandomSamples, int collisionCheckRange)

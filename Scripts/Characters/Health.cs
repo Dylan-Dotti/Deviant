@@ -57,4 +57,16 @@ public class Health : MonoBehaviour
     {
         currentHealth = maxHealth;
     }
+
+    public void SetCurrentAndMaxHealth(int value)
+    {
+        maxHealth = value;
+        currentHealth = value;
+    }
+
+    public void IncreaseCurrentAndMaxHealth(int amount)
+    {
+        maxHealth += amount;
+        currentHealth += amount;
+    }
 }

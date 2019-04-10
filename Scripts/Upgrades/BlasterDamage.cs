@@ -14,8 +14,8 @@ public class BlasterDamage : PlayerUpgrade
     [SerializeField]
     private StatsDisplay dmgPerSecondDisplay;
 
-    private SingleBlaster leftPlayerBlaster;
-    private SingleBlaster rightPlayerBlaster;
+    private BlasterWeapon leftPlayerBlaster;
+    private BlasterWeapon rightPlayerBlaster;
     private IntRange baseDamage;
 
     protected override void Awake()

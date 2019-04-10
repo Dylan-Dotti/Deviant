@@ -2,10 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RangedDroneMultiBlaster : Weapon
+public class RangedDroneMultiBlaster : BlasterWeapon
 {
+    public override IntRange ProjectileDmgRange
+    {
+        get => blasters[0].ProjectileDmgRange;
+        set => blasters.ForEach(b => b.ProjectileDmgRange = value);
+    }
+
     [SerializeField]
     private List<SingleBlaster> blasters;
+
     [Header("Ammo")]
     [SerializeField]
     private float reloadInterval = 4;
@@ -28,34 +35,34 @@ public class RangedDroneMultiBlaster : Weapon
         StartCoroutine(RefreshAmmoPeriodically());
     }
 
-    protected override void Update()
+    public override void FireWeapon()
     {
-        base.Update();
+        base.FireWeapon();
+        recoiler.AttemptRecoil();
+        fireSound.PlayOneShot(fireSound.clip);
+        int randIndex = Random.Range(0, blasters.Count);
+        blasters[randIndex].FireWeapon();
+        currentAmmo -= 1;
+        if (blasters.Count > 1 && currentAmmo > 0)
+        {
+            while (true)
+            {
+                int randIndex2 = Random.Range(0, blasters.Count);
+                if (randIndex2 != randIndex)
+                {
+                    blasters[randIndex2].FireWeapon();
+                    currentAmmo -= 1;
+                    break;
+                }
+            }
+        }
     }
 
-    public override void FireWeapon()
+    public override void AttemptFireWeapon()
     {
         if (currentAmmo > 0)
         {
-            base.FireWeapon();
-            recoiler.AttemptRecoil();
-            fireSound.PlayOneShot(fireSound.clip);
-            int randIndex = Random.Range(0, blasters.Count);
-            blasters[randIndex].FireWeapon();
-            currentAmmo -= 1;
-            if (blasters.Count > 1 && currentAmmo > 0)
-            {
-                while (true)
-                {
-                    int randIndex2 = Random.Range(0, blasters.Count);
-                    if (randIndex2 != randIndex)
-                    {
-                        blasters[randIndex2].FireWeapon();
-                        currentAmmo -= 1;
-                        break;
-                    }
-                }
-            }
+            base.AttemptFireWeapon();
         }
     }
 
@@ -63,6 +70,10 @@ public class RangedDroneMultiBlaster : Weapon
     {
         while (true)
         {
+            while (currentAmmo == maxAmmo)
+            {
+                yield return null;
+            }
             yield return new WaitForSeconds(reloadInterval);
             currentAmmo = maxAmmo;
         }

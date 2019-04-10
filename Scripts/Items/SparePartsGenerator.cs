@@ -1,12 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(Enemy))]
 public class SparePartsGenerator : MonoBehaviour
 {
-    [SerializeField]
-    private EnemyType sparePartPoolType;
+    public IntRange ValuePerPartRange
+    {
+        get => valuePerPartRange;
+        set => valuePerPartRange = value;
+    }
+
+    //[SerializeField]
+    //private EnemyType sparePartPoolType;
     [SerializeField]
     private IntRange valuePerPartRange = new IntRange(1, 1);
     [SerializeField]
@@ -19,7 +24,7 @@ public class SparePartsGenerator : MonoBehaviour
     private void Awake()
     {
         partPool = ObjectPoolManager.Instance.
-            GetSparePartPool(sparePartPoolType);
+            GetSparePartPool(GetComponent<Enemy>().EType);
     }
 
     public void GenerateSpareParts()

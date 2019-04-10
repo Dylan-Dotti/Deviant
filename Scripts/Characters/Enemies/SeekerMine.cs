@@ -7,6 +7,8 @@ public class SeekerMine : Enemy
 {
     public enum SeekerMineState { IDLE, WARN, SEEK }
 
+    public override EnemyType EType => EnemyType.SeekerMine;
+
     [SerializeField]
     private float colorLerpDuration = 3f;
     private bool isLerping = false;
@@ -36,15 +38,15 @@ public class SeekerMine : Enemy
     [SerializeField]
     private float warnRange = 8f;
     [SerializeField]
-    private float seekRange = 4f;
+    private float seekRange = 5f;
     [SerializeField]
-    private float explodeRange = 1.5f;
+    private float explodeRange = 2f;
 
     [Header("Explosion Effect")]
     [SerializeField]
     private int maxExplosionDamage = 20;
     [SerializeField]
-    private FloatRange damageFalloffInterval = new FloatRange(1.5f, 5);
+    private FloatRange damageFalloffInterval = new FloatRange(2, 5);
     [SerializeField]
     private GameObject bodyObject;
     [SerializeField]
@@ -64,14 +66,13 @@ public class SeekerMine : Enemy
         explosionSound = GetComponent<AudioSource>();
         navAgent = GetComponent<NavMeshAgent>();
         wanderBehavior = GetComponent<IdleWander>();
+        player = PlayerCharacter.Instance;
     }
 
     protected override void Start()
     {
         base.Start();
-        player = PlayerCharacter.Instance;
         StartCoroutine(LerpLightsToStatePeriodic());
-        //StartCoroutine(SetDestinationPeriodic());
     }
 
     private void Update()
@@ -96,11 +97,17 @@ public class SeekerMine : Enemy
         }
     }
 
+    protected override void ApplyScalars()
+    {
+        base.ApplyScalars();
+        maxExplosionDamage = Mathf.RoundToInt(maxExplosionDamage *
+            EnemyStrengthScalars.GetDamageScalar(EType));
+    }
+
     public override void Die()
     {
         enabled = false;
         StopAllCoroutines();
-        navAgent.ResetPath();
         EnemyDeathEvent?.Invoke(this);
         StartCoroutine(ShrinkAndExplode());
     }
@@ -110,14 +117,17 @@ public class SeekerMine : Enemy
         base.OnPlayerDeath(c);
         combatState = SeekerMineState.IDLE;
         navAgent.ResetPath();
-        enabled = false;
     }
 
     protected override IEnumerator SpawnSequence()
     {
+        enabled = player.IsActiveInWorld;
         yield return new WaitForSeconds(1.25f);
         navAgent.enabled = true;
-        StartCoroutine(SetDestinationPeriodic());
+        if (player.IsActiveInWorld)
+        {
+            StartCoroutine(SetDestinationPeriodic());
+        }
         yield return new WaitForSeconds(1.75f);
         wanderBehavior.enabled = true;
     }
@@ -226,6 +236,7 @@ public class SeekerMine : Enemy
         explosionSound.Play();
         CameraShake.Instance.ShakeByDistance(10f, playerDist, 15f);
         explosionParticles.SetActive(true);
+        GetComponent<SparePartsGenerator>().GenerateSpareParts();
         yield return null;
         bodyObject.SetActive(false);
         healthBar.SetActive(false);

@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-public abstract class SingleBlaster : Weapon
+public abstract class SingleBlaster : BlasterWeapon
 {
-    public IntRange ProjectileDmgRange
+    public override IntRange ProjectileDmgRange
     {
         get => projectileDamageRange;
         set => projectileDamageRange = value;
@@ -43,7 +43,10 @@ public abstract class SingleBlaster : Weapon
         {
             fireSound?.PlayOneShot(fireSound.clip);
         }
-        fireParticles.Play();
+        if (fireParticles != null)
+        {
+            fireParticles.Play();
+        }
     }
 
     public abstract void InitProjectilePool();

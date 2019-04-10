@@ -2,6 +2,12 @@
 
 public class DamagePlayerOnContact : MonoBehaviour
 {
+    public int DamageAmount
+    {
+        get => damageAmount;
+        set => damageAmount = value;
+    }
+
     [SerializeField]
     private int damageAmount = 5;
     [SerializeField]

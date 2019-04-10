@@ -1,10 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WaveCompleteDisplay : MonoBehaviour
 {
     public static WaveCompleteDisplay Instance { get; private set; }
+
+    [SerializeField]
+    private Text waveCompleteText;
 
     private List<GameObject> childObjects;
 
@@ -12,7 +15,10 @@ public class WaveCompleteDisplay : MonoBehaviour
     {
         if (Instance == null)
         {
-            WaveGenerator.Instance.WaveEndedEvent += i => Activate();
+            if (WaveGenerator.Instance != null)
+            {
+                WaveGenerator.Instance.WaveEndedEvent += i => Activate(i);
+            }
             childObjects = new List<GameObject>();
             for (int i = 0; i < transform.childCount; i++)
             {
@@ -43,8 +49,9 @@ public class WaveCompleteDisplay : MonoBehaviour
         WaveGenerator.Instance.StartNextWave();
     }
 
-    public void Activate()
+    public void Activate(int waveNum)
     {
+        waveCompleteText.text = "Wave " + waveNum + " Complete";
         enabled = true;
     }
 

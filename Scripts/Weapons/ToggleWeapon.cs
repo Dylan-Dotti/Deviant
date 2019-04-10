@@ -17,7 +17,7 @@ public abstract class ToggleWeapon : Weapon
         }
     }
 
-    public virtual void CancelFireWeapon()
+    public override void CancelFireWeapon()
     {
         IsFiring = false;
     }

@@ -1,42 +1,128 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Duplicator : Enemy
 {
     public static CharacterDelegate DuplicatorDeathEvent;
 
+    public override EnemyType EType => EnemyType.Duplicator;
+
     [SerializeField]
     private Duplicator duplicatorPrefab;
 
+    private DuplicatorDeathAnimation deathAnimation;
+    private SparePartsGenerator partsGenerator;
     private Rigidbody rBody;
+    private NavMeshAgent navAgent;
+    private NavMeshObstacle navObstacle;
+    private Coroutine setDestinationRoutine;
+    private Transform playerTransform;
 
     protected override void Awake()
     {
         base.Awake();
+        deathAnimation = GetComponent<DuplicatorDeathAnimation>();
+        partsGenerator = GetComponent<SparePartsGenerator>();
         rBody = GetComponent<Rigidbody>();
+        navAgent = GetComponent<NavMeshAgent>();
+        navObstacle = GetComponentInChildren<NavMeshObstacle>();
+        playerTransform = PlayerCharacter.Instance.transform;
     }
 
     public override void Die()
     {
-        StopAllCoroutines();
-        StartCoroutine(DeathSequence());
+        base.Die();
+        if (navAgent.enabled)
+        {
+            navAgent.ResetPath();
+            rBody.velocity = navAgent.velocity;
+            navAgent.enabled = false;
+        }
+        navObstacle.enabled = false;
         DuplicatorDeathEvent?.Invoke(this);
-        EnemyDeathEvent?.Invoke(this);
+        StopAllCoroutines();
+        deathAnimation.PlayAnimation();
+    }
+
+    protected override void OnPlayerDeath(Character c)
+    {
+        base.OnPlayerDeath(c);
+        if (setDestinationRoutine != null)
+        {
+            StopCoroutine(setDestinationRoutine);
+        }
+        if (navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.ResetPath();
+        }
     }
 
     public Duplicator Duplicate()
     {
         Duplicator clone = Instantiate(duplicatorPrefab, 
             transform.position, transform.rotation);
+        clone.UndoScalars();
+        //split value of currency drops
+        FloatRange halfPartsValue = new FloatRange(partsGenerator.
+            ValuePerPartRange.Min / 2f, partsGenerator.ValuePerPartRange.Max / 2f);
+        partsGenerator.ValuePerPartRange = new IntRange(Mathf.CeilToInt(
+            halfPartsValue.Min), Mathf.CeilToInt(halfPartsValue.Max));
+        clone.partsGenerator.ValuePerPartRange = new IntRange(Mathf.FloorToInt(
+            halfPartsValue.Min), Mathf.FloorToInt(halfPartsValue.Max));
+
         StartCoroutine(SeparateFromClone(clone));
         return clone;
     }
 
+    private void UndoScalars()
+    {
+        CharacterHealth.SetCurrentAndMaxHealth(Mathf.RoundToInt(CharacterHealth.
+            MaxHealth / EnemyStrengthScalars.GetHealthScalar(EType)));
+        DamagePlayerOnContact contactDamager = GetComponent<DamagePlayerOnContact>();
+        contactDamager.DamageAmount = Mathf.RoundToInt(contactDamager.
+            DamageAmount / EnemyStrengthScalars.GetDamageScalar(EType));
+
+    }
+
     protected override IEnumerator SpawnSequence()
     {
-        yield return null;
+        yield return new WaitForSeconds(1);
+        if (PlayerCharacter.Instance.IsActiveInWorld)
+        {
+            setDestinationRoutine = StartCoroutine(SetDestinationPeriodic());
+        }
+    }
+
+    private IEnumerator SetDestinationPeriodic()
+    {
+        bool isChasingPlayer = false;
+        while (true)
+        {
+            if (Vector3.Distance(transform.position, 
+                playerTransform.position) < 5)
+            {
+                if (!isChasingPlayer)
+                {
+                    navObstacle.enabled = false;
+                    yield return null;
+                    navAgent.enabled = true;
+                    isChasingPlayer = true;
+                }
+                navAgent.SetDestination(playerTransform.position);
+            }
+            else if (isChasingPlayer)
+            {
+                navAgent.ResetPath();
+                rBody.velocity = navAgent.velocity;
+                navAgent.enabled = false;
+                yield return new WaitForSeconds(0.05f);
+                navObstacle.enabled = true;
+                isChasingPlayer = false;
+            }
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 
     private IEnumerator SeparateFromClone(Duplicator clone)
@@ -65,46 +151,5 @@ public class Duplicator : Enemy
                 transform.position, transform.rotation);
             StartCoroutine(SeparateFromClone(clone));
         }
-    }
-
-    //remove from class
-    private IEnumerator DeathSequence()
-    {
-        List<GameObject> childObjects = new List<GameObject>();
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            childObjects.Add(transform.GetChild(i).gameObject);
-        }
-
-        GetComponent<Collider>().enabled = false;
-        foreach (GameObject childGO in childObjects)
-        {
-            //alter components
-            Collider childCollider = childGO.GetComponent<Collider>();
-            if (childCollider != null)
-            {
-                childCollider.enabled = false;
-            }
-            Rigidbody childRB = childGO.AddComponent<Rigidbody>();
-            childRB.useGravity = false;
-            childRB.drag = 1f;
-
-            //add forces
-            Vector3 forceDirection = new Vector3(childGO.transform.position.x - 
-                transform.position.x, -0.2f, childGO.transform.position.z - 
-                transform.position.z).normalized;
-            childRB.AddForce(forceDirection * Random.Range(0.1f, 1f), ForceMode.Impulse);
-            float torqueDirectionScalar = Random.value > 0.5f ? 1 : -1;
-            childRB.AddTorque(Random.Range(0.25f, 0.5f) * 
-                torqueDirectionScalar * Vector3.up, ForceMode.Impulse);
-        }
-
-        //shrink
-        yield return new WaitForSeconds(1f);
-        List<Transform> childTransforms = childObjects.Select(o => o.transform).ToList();
-        float shrinkDuration = 0.75f;
-        LerpScaleOverDuration(childTransforms, 0f, shrinkDuration);
-        yield return new WaitForSeconds(shrinkDuration + 0.05f);
-        Destroy(gameObject);
     }
 }
