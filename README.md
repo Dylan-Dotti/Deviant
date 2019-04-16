@@ -2,7 +2,7 @@
 
 CPSC 498 capstone project game
 
-Update for intermediate presentation 1
+Update for final submission
 
 To play demo:
 1. Clone or download
