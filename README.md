@@ -11,17 +11,16 @@ To play demo:
 4. Run "Deviant.exe"
 
 Controls:
-- **Advance to next stage of demo (brief cooldown) : Return / Enter**
-- **Go to previous / next scene : - / =**
 - Movement : W, A, S, D
 - Shoot : Left mouse button
 - Weapon blaster mode : 1
 - Weapon scatter mode : 2
-- Boost (5s cooldown) : Space
+- Weapon laser mode : 3
+- Boost : Space
 - Pause / Unpause : Escape
 - Camera zoom : Mouse wheel
 - Reset camera : Home
-- Play next song (after music starts) : N
+- Play next song : N
 
 Contents:
 - Blender : Contains Blender models used by the game
