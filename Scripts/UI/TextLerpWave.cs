@@ -2,8 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Manages the color lerping effect for the title menu 
+ * title and button components
+ * 
+ * Maintains a stack of activations, which propagate outward 
+ * from the original letter and fades with distance. The 
+ * stack is later unwound to reverse the effect when it is 
+ * cancelled
+ * 
+ * Each activation is associated with a magnitude, and the 
+ * color of each letter is determined by the sum of all 
+ * magnitudes affecting it
+ */ 
 public class TextLerpWave : MonoBehaviour
 {
+    //stores the order of text color changes in a stack, to later be reversed
     public class WaveActivationSequence
     {
         public readonly LerpWaveText baseText;

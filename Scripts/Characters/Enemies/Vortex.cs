@@ -2,6 +2,8 @@
 using UnityEngine;
 
 /* Peroidically spawned by VortexSpawners
+ * They use a PlayerMagnet to draw in the player 
+ * while in range
  */
 [RequireComponent(typeof(PlayerMagnet))]
 public class Vortex : Enemy

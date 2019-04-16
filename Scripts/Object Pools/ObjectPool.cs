@@ -1,6 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/* An object pool manages a collection of pre-instantiated objects.
+ * These objects are kept deactivated until needed. They are then 
+ * activated, used, and returned to the pool. This saves a lot of 
+ * instantiation processing time and garbage collection calls
+ */
 [System.Serializable]
 public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IPoolable<T>
 {

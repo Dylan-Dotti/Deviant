@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+/* A somewhat successful, somewhat unsuccessful attempt 
+ * at abstracting lerping functionality
+ */ 
 public abstract class PercentageLerper : MonoBehaviour
 {
     public abstract float CurrentLerpPercentage { get;}

@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+/* Maintains a collection of "forces", the sum 
+ * of  which determines the color of the text
+ */ 
 public class LerpWaveText : Text, IPointerEnterHandler,
     IPointerExitHandler, ITextGridElement
 {

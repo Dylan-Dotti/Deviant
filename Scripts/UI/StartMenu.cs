@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/* Manages the components of the start menu, 
+ * including the title, buttons, and CPU
+ */
 public class StartMenu : MonoBehaviour
 {
     public static StartMenu Instance { get; private set; }
