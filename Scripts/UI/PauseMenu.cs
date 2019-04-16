@@ -1,20 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class PauseMenu : MonoBehaviour
 {
-    public delegate void PauseMenuDelegate();
 
     public static PauseMenu Instance { get; private set; }
 
     public bool IsPaused { get; private set; }
 
-    public static PauseMenuDelegate GamePausedEvent;
-    public static PauseMenuDelegate GameResumedEvent;
+    public UnityAction GamePausedEvent;
+    public UnityAction GameResumedEvent;
 
     [SerializeField]
+    private List<Button> menuButtons;
+    [SerializeField]
     private GameObject pauseMenuUI;
+    [SerializeField]
+    private GameObject quitConfirmPanel;
+    [SerializeField]
+    private GameObject exitConfirmPanel;
 
     private PlayerController pController;
 
@@ -60,5 +67,51 @@ public class PauseMenu : MonoBehaviour
     public void ResumeGame()
     {
         enabled = false;
+    }
+
+    public void OpenOptionsMenu()
+    {
+
+    }
+
+    public void QuitToMainMenu()
+    {
+        SceneTransitionPanel.Instance.TransitionToPrevScene();
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
+
+    public void OpenQuitConfirmPanel(bool exitGame)
+    {
+        if (exitGame)
+        {
+            exitConfirmPanel.gameObject.SetActive(true);
+        }
+        else
+        {
+            quitConfirmPanel.gameObject.SetActive(true);
+        }
+        SetButtonsInteractable(false);
+    }
+
+    public void CloseQuitConfirmPanel(bool exitGame)
+    {
+        if (exitGame)
+        {
+            exitConfirmPanel.gameObject.SetActive(false);
+        }
+        else
+        {
+            quitConfirmPanel.gameObject.SetActive(false);
+        }
+        SetButtonsInteractable(true);
+    }
+
+    private void SetButtonsInteractable(bool interactable)
+    {
+        menuButtons.ForEach(b => b.interactable = interactable);
     }
 }

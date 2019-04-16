@@ -1,10 +1,18 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
+/* Enemy is the superclass of all the game's enemies.
+ * Mostly handles the firing of enemy-based events and 
+ * applying health scalars from EnemyStrengthScalars.
+ * 
+ * All enemies damage the player on contact, and most 
+ * knock the player away as well.
+ */
 public abstract class Enemy : Character
 {
-    public static CharacterDelegate EnemySpawnedEvent;
-    public static CharacterDelegate EnemyDeathEvent;
+    public static UnityAction<Enemy> EnemySpawnedEvent;
+    public static UnityAction<Enemy> EnemyDeathEvent;
 
     public abstract EnemyType EType { get; }
 
@@ -27,15 +35,15 @@ public abstract class Enemy : Character
 
     public override void Die()
     {
-        //GetComponent<SparePartsGenerator>()?.GenerateSpareParts();
         EnemyDeathEvent?.Invoke(this);
     }
 
-    protected virtual void OnPlayerDeath(Character c)
+    protected virtual void OnPlayerDeath()
     {
         enabled = false;
     }
 
+    // Apply health and contact damage scalars. called after each wave completion
     protected virtual void ApplyScalars()
     {
         CharacterHealth.SetCurrentAndMaxHealth(Mathf.RoundToInt(
@@ -49,5 +57,8 @@ public abstract class Enemy : Character
         }
     }
 
+    /* In the enemy subclasses, this function is mostly used to handle issues 
+     * with the NavMeshAgent component when spawning, and to decide on 
+     * behavior based on whether the player is dead or not */
     protected abstract IEnumerator SpawnSequence();
 }

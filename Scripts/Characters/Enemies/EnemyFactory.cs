@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+/* Spawns enemies for given EnemyTypes
+ */
 public sealed class EnemyFactory : MonoBehaviour
 {
     public static EnemyFactory Instance { get; private set; }

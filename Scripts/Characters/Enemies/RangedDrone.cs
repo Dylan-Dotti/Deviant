@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+/* The reddish ones that shoot.
+ * They try to stay within a specified range of the player, 
+ * and will advance or retreat if outside those bounds.
+ * If within the specified range, will strafe left and right 
+ * randomly.
+ * 
+ * Raycasting "whiskers" are used to avoid strafing and retreating 
+ * into other enemies and walls
+ */
 [RequireComponent(typeof(NavMeshAgent))]
 public class RangedDrone : Enemy
 {
@@ -44,6 +53,7 @@ public class RangedDrone : Enemy
         enabled = false;
     }
 
+    // Update combat state based on distance from player; fire weapon
     private void Update()
     {
         float playerDist = Vector3.Distance(transform.position,
@@ -63,7 +73,7 @@ public class RangedDrone : Enemy
             cMode = CombatMode.Strafe;
         }
 
-        //set rotation and fire weapon
+        //set rotation and fire weapon if in range
         rotator.TargetPosition = playerTransform.position;
         float angleBetween = Vector3.Angle(rotator.transform.forward,
             playerTransform.position - transform.position);
@@ -89,24 +99,20 @@ public class RangedDrone : Enemy
         deathAnimation.PlayAnimation();
     }
 
-    protected override void OnPlayerDeath(Character c)
+    protected override void OnPlayerDeath()
     {
-        base.OnPlayerDeath(c);
+        base.OnPlayerDeath();
         cMode = CombatMode.Strafe;
     }
 
     protected override void ApplyScalars()
     {
-        Debug.Log(EType.ToString());
         base.ApplyScalars();
         int oldMin = blaster.ProjectileDmgRange.Min;
         int oldMax = blaster.ProjectileDmgRange.Max;
-        Debug.Log(oldMin + " " + oldMax);
         float dmgScalar = EnemyStrengthScalars.GetDamageScalar(EType);
         blaster.ProjectileDmgRange = new IntRange(Mathf.RoundToInt(
             oldMin * dmgScalar), Mathf.RoundToInt(oldMax * dmgScalar));
-        Debug.Log(blaster.ProjectileDmgRange.Min + " " +
-            blaster.ProjectileDmgRange.Max);
     }
 
     private Vector3 GetChasePosition()
@@ -143,6 +149,10 @@ public class RangedDrone : Enemy
             Random.Range(0, backMoveDirections.Count)] * range;
     }
 
+    /* Generates a number of possible move directions in the general 
+     * direction of baseDirection, omitting directions that hit 
+     * another enemy or a wall
+     */
     private List<Vector3> GetRandomMoveDirections(Vector3 baseDirection,
         Vector3 variationDirection, float maxRange, int numSamples)
     {
@@ -182,6 +192,7 @@ public class RangedDrone : Enemy
         enabled = PlayerCharacter.Instance.IsActiveInWorld;
     }
 
+    // Periodically sets the move target for the NavMeshAgent based on state
     private IEnumerator SetMoveTargetPeriodic()
     {
         while (true)

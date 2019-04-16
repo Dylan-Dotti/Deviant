@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+/* Currency used to purchase player upgrades
+ */
 public class SparePart : Item, IPoolable<SparePart>
 {
     public int Value
@@ -23,7 +25,12 @@ public class SparePart : Item, IPoolable<SparePart>
             GetPartNotifierPool();
     }
 
-    public override void MergeWithPlayer()
+    protected override void Despawn()
+    {
+        ReturnToPool();
+    }
+
+    protected override void MergeWithPlayer()
     {
         player.NumSpareParts += value;
         SparePartNotifier notifier = partNotifierPool.Get();

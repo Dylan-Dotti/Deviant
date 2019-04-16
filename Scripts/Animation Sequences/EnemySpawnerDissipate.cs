@@ -14,7 +14,6 @@ public class EnemySpawnerDissipate : AnimationSequence
 
     protected override IEnumerator AnimationSequenceCR()
     {
-        IsPlaying = true;
         foreach (ParticleSystem particles in particleEffects)
         {
             particles.Stop();

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/* Manages multiple lasers and fires them in unison
+ */
 public class MultiLaser : ToggleWeapon
 {
     public List<SingleLaser> Lasers => lasers;

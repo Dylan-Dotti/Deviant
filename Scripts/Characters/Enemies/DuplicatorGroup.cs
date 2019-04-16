@@ -1,9 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
+/* Class created to nerf the spawn rates and amounts of duplicators.
+ * Starts with a single duplicator, and periodiclly triggers their 
+ * duplication until a set limit.
+ */
 public class DuplicatorGroup : MonoBehaviour
 {
+    /* The DuplicatorGroup maintains a number of charges 
+     * so that the spawn rates increase with the number 
+     * currently in the group
+     */
     public class DuplicationCharge
     {
         public Duplicator DuplicatorObj { get; private set; }
@@ -64,7 +71,6 @@ public class DuplicatorGroup : MonoBehaviour
         duplicationCharges.Remove(charge);
         Duplicator progenitor = duplicators[0];
         Duplicator clone = progenitor.Duplicate();
-        //clone.transform.parent = transform;
         duplicators.Add(clone);
         duplicators.Remove(progenitor);
         duplicators.Add(progenitor);
@@ -81,8 +87,7 @@ public class DuplicatorGroup : MonoBehaviour
 
     private float GetNewDuplicationTime()
     {
-        return Time.time + Random.Range(duplicationChargeCooldown.Min,
-            duplicationChargeCooldown.Max);
+        return Time.time + duplicationChargeCooldown.RandomRangeValue;
     }
 
     private bool ChargesContainsDuplicator(Duplicator dInstance)

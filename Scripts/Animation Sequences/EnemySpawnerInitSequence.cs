@@ -33,7 +33,6 @@ public class EnemySpawnerInitSequence : AnimationSequence
     protected override IEnumerator AnimationSequenceCR()
     {
         yield return new WaitForSeconds(1);
-        IsPlaying = true;
 
         //init radius variables
         float origDmgColliderRadius = damageCollider.radius;
@@ -96,7 +95,6 @@ public class EnemySpawnerInitSequence : AnimationSequence
             magnet.FalloffRadiusRange = new FloatRange(mLerpStartRadius, maxRadius);
             yield return null;
         }
-        IsPlaying = false;
         GetComponent<EnemySpawner>().enabled = true;
         Destroy(this);
     }

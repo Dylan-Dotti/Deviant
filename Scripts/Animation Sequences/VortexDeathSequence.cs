@@ -11,7 +11,6 @@ public class VortexDeathSequence : AnimationSequence
 
     protected override IEnumerator AnimationSequenceCR()
     {
-        IsPlaying = true;
         healthBar.gameObject.SetActive(false);
         GetComponent<Collider>().enabled = false;
         foreach (ParticleSystem particles in particlesToStop)

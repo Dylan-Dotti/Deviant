@@ -3,8 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+/* Generates enemy waves by sampling from a preset selection 
+ * of EnemySpawner. Spawns EnemySpawner objects (sometimes 
+ * called portals) at one of 7 preset locations on the map 
+ * (though I'd like to add more variation). 
+ * Fires events on wave start and end.
+ */ 
 public class WaveGenerator : MonoBehaviour
 {
+    // class representing an enemy wave composed of EnemySpawners
     private class EnemyWave
     {
         public readonly Queue<EnemySpawner> spawnerQueue;
@@ -48,9 +55,7 @@ public class WaveGenerator : MonoBehaviour
     {
         if (Instance == null)
         {
-            Debug.Log("Wave generator awake");
             Instance = this;
-            //PlayerCharacter.PlayerDeathEvent += c => StopAllCoroutines();
             Enemy.EnemySpawnedEvent += c => numActiveEnemies++;
             Enemy.EnemyDeathEvent += c => numActiveEnemies--;
             spawnLocations = new List<PortalSpawnLocation>();
@@ -60,13 +65,7 @@ public class WaveGenerator : MonoBehaviour
                 spawnLocations.Add(new PortalSpawnLocation(
                     portalSpawnPoints.GetChild(i)));
             }
-            //EnemyStrengthScalars.Init();
         }
-    }
-
-    private void Start()
-    {
-        StartNextWave();
     }
 
     private void OnEnable()
@@ -84,15 +83,9 @@ public class WaveGenerator : MonoBehaviour
     {
         StopAllCoroutines();
         currentWaveCount++;
-        Debug.Log("Starting wave " + currentWaveCount);
-        currentWave = GenerateRandomWave(3, 2);
-        StartCoroutine(SpawnWaveCR(currentWave, new FloatRange(14f, 17.5f)));
+        currentWave = GenerateRandomWave(5, 2);
+        StartCoroutine(SpawnWaveCR(currentWave, new FloatRange(17.5f, 20f)));
         WaveStartedEvent?.Invoke(currentWaveCount);
-    }
-
-    private void OnPlayerDeath(Character c)
-    {
-        enabled = false;
     }
 
     private void EndCurrentWave()
@@ -100,9 +93,9 @@ public class WaveGenerator : MonoBehaviour
         StopAllCoroutines();
         currentWave = null;
         WaveEndedEvent?.Invoke(currentWaveCount);
-        Debug.Log("Wave " + currentWaveCount + " complete");
     }
 
+    // Generates a mostly random wave from the list of EnemySpawner prefabs
     private EnemyWave GenerateRandomWave(int numPortals, int queueFrontSize)
     {
         VariableFrontQueue<EnemySpawner> spawnerQueue =
@@ -115,6 +108,9 @@ public class WaveGenerator : MonoBehaviour
         return new EnemyWave(waveSpawners);
     }
 
+    /* Spawns a portal at one of the available preset locations (or freezes 
+     * the game if they're all occupied. Not ideal)
+     */
     private EnemySpawner SpawnPortalPresetLocation(EnemySpawner portalPrefab)
     {
         PortalSpawnLocation spawnLocation;
@@ -134,14 +130,23 @@ public class WaveGenerator : MonoBehaviour
         return portal;
     }
 
+    // NYI
     private void SpawnPortalRandomLocation(EnemySpawner portalPrefab)
     {
 
     }
 
+    private void OnPlayerDeath()
+    {
+        enabled = false;
+    }
+
+
+    /* Spawns the portals of a given wave, 
+     * with a random intervalRange between spawn times
+     */
     private IEnumerator SpawnWaveCR(EnemyWave wave, FloatRange intervalRange)
     {
-        int playerStartSpareParts = PlayerCharacter.Instance.NumSpareParts;
         Queue<EnemySpawner> spawnerQueue = wave.spawnerQueue;
         int numSpawners = spawnerQueue.Count;
         EnemySpawner nextSpawner = SpawnPortalPresetLocation(spawnerQueue.Dequeue());
@@ -164,6 +169,7 @@ public class WaveGenerator : MonoBehaviour
         EndCurrentWave();
     }
 
+    // Spawns random portals. used for testing.
     private IEnumerator SpawnRandomPortalsPeriodic()
     {
         VariableFrontQueue<EnemySpawner> spawnerQueue =

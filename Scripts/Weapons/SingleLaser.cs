@@ -52,6 +52,11 @@ public class SingleLaser : ToggleWeapon
         laserSound = GetComponent<AudioSource>();
     }
 
+    private void OnDisable()
+    {
+        CancelFireWeapon();
+    }
+
     protected override void Update()
     {
         base.Update();
@@ -157,7 +162,7 @@ public class SingleLaser : ToggleWeapon
         return lerpDuration;
     }
 
-    protected virtual void ApplyDamage(RaycastHit hitTarget, 
+    protected virtual void ApplyDamage(RaycastHit hitTarget,
         Health targetHealth, int damage)
     {
         targetHealth.CurrentHealth -= damage;
@@ -165,18 +170,21 @@ public class SingleLaser : ToggleWeapon
 
     private void DamageTarget(RaycastHit hitTarget)
     {
-        //RaycastHit hitTarget = GetClosestHit();
-        //if (hitTarget.transform != null)
-        //{
-        Health targetHealth = hitTarget.transform.root.
-            GetComponentInChildren<Health>();
-        if (targetHealth != null)
+        if (hitTarget.transform != null)
         {
-            ApplyDamage(hitTarget, targetHealth, 
-                damagePerTick.RandomRangeValue);
-            timeSinceLastDamage = 0;
+            Health targetHealth = hitTarget.transform.root.
+                GetComponentInChildren<Health>();
+            if (targetHealth != null)
+            {
+                ApplyDamage(hitTarget, targetHealth,
+                    damagePerTick.RandomRangeValue);
+                timeSinceLastDamage = 0;
+            }
         }
-        //}
+        else
+        {
+            CancelFireWeapon();
+        }
     }
 
     private float GetLaserLength()
@@ -218,7 +226,7 @@ public class SingleLaser : ToggleWeapon
     {
         float startWidth = laser.startWidth;
         float lerpStartTime = Time.time;
-        for (float currDuration = 0; currDuration < duration; 
+        for (float currDuration = 0; currDuration < duration;
              currDuration = Time.time - lerpStartTime)
         {
             float lerpPercentage = currDuration / duration;

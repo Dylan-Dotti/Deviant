@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+/* The orange ones with tentacles.
+ * They simply chase the player around anda fire their lasers 
+ * if in range and facing the player
+ */
 [RequireComponent(typeof(NavMeshAgent))]
 public class LaserDrone : Enemy
 {
@@ -35,6 +39,9 @@ public class LaserDrone : Enemy
         enabled = false;
     }
 
+    /* Update rotator target position and fire weapon if in range 
+     * and facing player
+     */
     private void Update()
     {
         rotator.TargetPosition = playerTransform.position;
@@ -81,14 +88,16 @@ public class LaserDrone : Enemy
         deathAnimation.PlayAnimation();
     }
 
-    protected override void OnPlayerDeath(Character c)
+    protected override void OnPlayerDeath()
     {
-        base.OnPlayerDeath(c);
+        base.OnPlayerDeath();
         laserWeapon.CancelFireWeapon();
-        //navAgent.ResetPath();
         StopAllCoroutines();
     }
 
+    /* Modifies the noise strength of the tentacle spawn directions 
+     * to be perpendicular to the direction the LaserDrone is facing
+     */
     private void UpdateTrailParticles()
     {
         foreach (ParticleSystem trail in trailParticles)
@@ -111,6 +120,7 @@ public class LaserDrone : Enemy
         enabled = PlayerCharacter.Instance.IsActiveInWorld;
     }
 
+    // Periodically sets the NavMeshAgent destination to the player position
     private IEnumerator SetDestinationPeriodic()
     {
         while (true)

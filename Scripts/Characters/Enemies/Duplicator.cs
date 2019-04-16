@@ -1,11 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.AI;
 
+/* The green ones.
+ * They copy themselves and chase the player 
+ * around if they get close enough. Duplication 
+ * is managed by a DuplicatorGroup
+ */
 public class Duplicator : Enemy
 {
-    public static CharacterDelegate DuplicatorDeathEvent;
+    public static UnityAction<Duplicator> DuplicatorDeathEvent;
 
     public override EnemyType EType => EnemyType.Duplicator;
 
@@ -43,12 +49,13 @@ public class Duplicator : Enemy
         navObstacle.enabled = false;
         DuplicatorDeathEvent?.Invoke(this);
         StopAllCoroutines();
+        GetComponent<SparePartsGenerator>().GenerateSpareParts();
         deathAnimation.PlayAnimation();
     }
 
-    protected override void OnPlayerDeath(Character c)
+    protected override void OnPlayerDeath()
     {
-        base.OnPlayerDeath(c);
+        base.OnPlayerDeath();
         if (setDestinationRoutine != null)
         {
             StopCoroutine(setDestinationRoutine);
@@ -59,8 +66,13 @@ public class Duplicator : Enemy
         }
     }
 
+    /* Generate a clone and separate from it, also splitting 
+     * the value of generated player currency in the process.
+     * Called by the DuplicatorGroup of a given Duplicator
+     */
     public Duplicator Duplicate()
     {
+        navAgent.radius = 0;
         Duplicator clone = Instantiate(duplicatorPrefab, 
             transform.position, transform.rotation);
         clone.UndoScalars();
@@ -76,6 +88,9 @@ public class Duplicator : Enemy
         return clone;
     }
 
+    /* The clones were having the scalars applied to them again with each 
+     * new one spawned. Needed to undo when spawning them
+     */
     private void UndoScalars()
     {
         CharacterHealth.SetCurrentAndMaxHealth(Mathf.RoundToInt(CharacterHealth.
@@ -95,6 +110,7 @@ public class Duplicator : Enemy
         }
     }
 
+    // Chase player if close enough
     private IEnumerator SetDestinationPeriodic()
     {
         bool isChasingPlayer = false;
@@ -125,6 +141,7 @@ public class Duplicator : Enemy
         }
     }
 
+    // Launches this duplicator and its new clone in mostly opposite directions
     private IEnumerator SeparateFromClone(Duplicator clone)
     {
         Vector3 separationVelocity = new Vector3(
@@ -138,8 +155,11 @@ public class Duplicator : Enemy
         foreach (Collider c in colliders) c.isTrigger = true;
         yield return new WaitForSeconds(0.3f);
         foreach (Collider c in colliders) c.isTrigger = false;
+        navAgent.radius = 0.9f;
+        clone.navAgent.radius = 0.9f;
     }
 
+    //not currently called by anything
     private IEnumerator DuplicatePeriodically()
     {
         List<Collider> colliders = new List<Collider>();

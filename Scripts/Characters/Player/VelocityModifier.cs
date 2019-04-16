@@ -1,7 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+/* Everything that moves the player does so with a VelocityModifier.
+ * The purpose of this is to differentiate between movement sources 
+ * and to set independent velocity limits for each source
+ */
 [System.Serializable]
 public class VelocityModifier
 {

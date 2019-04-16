@@ -1,6 +1,10 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+/* Superclass for all items.
+ * Currently, the only items are SpareParts.
+ * Items will move to merge with the player after the player moves within range
+ */
 public abstract class Item : MonoBehaviour
 {
     [Header("Auto Pickup")]
@@ -14,33 +18,39 @@ public abstract class Item : MonoBehaviour
     protected PlayerCharacter player;
 
     private Rigidbody rbody;
+    private Vector3 originalScale;
     private Collider itemCollider;
     private bool isMovingToPlayer;
 
     private Coroutine moveToPlayerCR;
+    private Coroutine despawnAfterCR;
 
     protected virtual void Awake()
     {
         rbody = GetComponent<Rigidbody>();
+        originalScale = transform.localScale;
         itemCollider = GetComponent<Collider>();
         player = PlayerCharacter.Instance;
     }
 
     private void OnEnable()
     {
-        PlayerCharacter.Instance.PlayerDeathEvent += OnPlayerDeath;
+        player.PlayerDeathEvent += OnPlayerDeath;
+        transform.localScale = originalScale;
         itemCollider.enabled = true;
-        StartCoroutine(AttemptMoveToPlayerCR());
+        despawnAfterCR = StartCoroutine(DespawnAfterCR(30));
+        moveToPlayerCR = StartCoroutine(AttemptMoveToPlayerCR());
     }
 
     private void OnDisable()
     {
-        PlayerCharacter.Instance.PlayerDeathEvent -= OnPlayerDeath;
+        player.PlayerDeathEvent -= OnPlayerDeath;
         isMovingToPlayer = false;
         itemCollider.enabled = false;
         StopAllCoroutines();
     }
 
+    // merge with player on collision
     protected virtual void OnTriggerEnter(Collider other)
     {
         if (other.tag == Tags.PLAYER_BODY_TAG)
@@ -58,22 +68,22 @@ public abstract class Item : MonoBehaviour
         }
     }
 
-    public void MoveToPlayer()
+    protected abstract void Despawn();
+
+    protected void MoveToPlayer()
     {
-        if (moveToPlayerCR != null)
-        {
-            StopCoroutine(moveToPlayerCR);
-        }
+        StopCoroutine(despawnAfterCR);
         StartCoroutine(MoveToPlayerCR());
     }
 
-    public abstract void MergeWithPlayer();
+    protected abstract void MergeWithPlayer();
 
-    protected virtual void OnPlayerDeath(Character c)
+    protected virtual void OnPlayerDeath()
     {
         enabled = false;
     }
 
+    // Move to merge with player
     private IEnumerator MoveToPlayerCR()
     {
         isMovingToPlayer = true;
@@ -99,5 +109,29 @@ public abstract class Item : MonoBehaviour
             yield return null;
         }
         MoveToPlayer();
+    }
+
+    // Shrink and despawn
+    private IEnumerator DespawnCR()
+    {
+        GetComponent<Collider>().enabled = false;
+        float duration = 2;
+        float lerpStartTime = Time.time;
+        for (float elapsed = 0; elapsed < duration;
+             elapsed = Time.time - lerpStartTime)
+        {
+            float lerpPercent = elapsed / duration;
+            transform.localScale = originalScale * (1f - lerpPercent);
+            yield return null;
+        }
+        Despawn();
+    }
+
+    //Despawn after the specified number of seconds
+    private IEnumerator DespawnAfterCR(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        StopCoroutine(moveToPlayerCR);
+        StartCoroutine(DespawnCR());
     }
 }

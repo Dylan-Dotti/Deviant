@@ -75,6 +75,9 @@ public class SeekerMine : Enemy
         StartCoroutine(LerpLightsToStatePeriodic());
     }
 
+    /* Set combat state based on player distance, 
+     * triggering other behaviors
+     */
     private void Update()
     {
         float playerDistance = Vector3.Distance(transform.position,
@@ -112,9 +115,9 @@ public class SeekerMine : Enemy
         StartCoroutine(ShrinkAndExplode());
     }
 
-    protected override void OnPlayerDeath(Character c)
+    protected override void OnPlayerDeath()
     {
-        base.OnPlayerDeath(c);
+        base.OnPlayerDeath();
         combatState = SeekerMineState.IDLE;
         navAgent.ResetPath();
     }
@@ -132,6 +135,9 @@ public class SeekerMine : Enemy
         wanderBehavior.enabled = true;
     }
 
+    /* If player is close enough, set target destination to player,
+     * else let IdleWander handle movement
+     */
     private IEnumerator SetDestinationPeriodic()
     {
         while (true)
@@ -156,6 +162,7 @@ public class SeekerMine : Enemy
         }
     }
 
+    // decides when to change light colors
     private IEnumerator LerpLightsToStatePeriodic()
     {
         SeekerMineState prevState = combatState;
@@ -170,13 +177,13 @@ public class SeekerMine : Enemy
         }
     }
 
+    // Coroutine for changing the light colors based on player distance
     private IEnumerator LerpColors()
     {
         isLerping = true;
 
         //set up materials
         Material lightLerpStartMaterial = new Material(lightRenderers[0].material);
-        //Material bodyLerpStartMaterial = new Material(bodyRenderers[0].material);
         Material lightLerpEndMaterial = null;
         Material bodyLerpEndMaterial = null;
         switch (combatState)
@@ -203,17 +210,14 @@ public class SeekerMine : Enemy
             float lerpPercentage = elapsed / colorLerpDuration;
             lightRenderers.ForEach(rend => rend.material.Lerp(
                 lightLerpStartMaterial, lightLerpEndMaterial, lerpPercentage));
-            //bodyRenderers.ForEach(rend => rend.material.Lerp(
-                //bodyLerpStartMaterial, bodyLerpEndMaterial, lerpPercentage));
             yield return null;
         }
         lightRenderers.ForEach(rend => rend.material = lightLerpEndMaterial);
-        //bodyRenderers.ForEach(rend => rend.material = bodyLerpEndMaterial);
 
         isLerping = false;
     }
 
-    //place in animation sequence class
+    // Should be implemented as an AnimationSequence
     private IEnumerator ShrinkAndExplode()
     {
         //shrink

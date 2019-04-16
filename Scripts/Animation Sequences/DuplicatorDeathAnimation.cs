@@ -19,7 +19,6 @@ public class DuplicatorDeathAnimation : AnimationSequence
 
     protected override IEnumerator AnimationSequenceCR()
     {
-        IsPlaying = true;
         healthBar.gameObject.SetActive(false);
         GetComponent<Collider>().enabled = false;
         foreach (Transform objTransform in objectsToLaunch)

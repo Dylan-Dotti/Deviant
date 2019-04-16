@@ -1,4 +1,7 @@
 ﻿
+/* Weapon that can be toggled on and off.
+ * Currently only used for laser weapons
+ */
 public abstract class ToggleWeapon : Weapon
 {
     public bool IsFiring { get; protected set; } = false;

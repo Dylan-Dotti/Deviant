@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 
+/* Representation of health used by enemies and the player.
+ * Fires events when health changes and controls health bar display
+ * (should be changed)
+ */ 
 public class Health : MonoBehaviour
 {
     public delegate void HealthChangedDelegate(float prevHealth, float newHealth);
 
     public HealthChangedDelegate HealthChangedEvent;
-    public HealthChangedDelegate HealthReachedZeroEvent;
 
     public bool CanReceiveDamage { get; set; } = true;
 
@@ -35,9 +38,8 @@ public class Health : MonoBehaviour
                 currentHealth = Mathf.Min(Mathf.Max(0, value), maxHealth);
                 if (currentHealth != prevHealth)
                 {
-                    healthBar.SetHealthPercentage(HealthPercentage);
-                    if (currentHealth == 0) HealthReachedZeroEvent?.Invoke(prevHealth, currentHealth);
-                    else HealthChangedEvent?.Invoke(prevHealth, currentHealth);
+                    healthBar?.SetHealthPercentage(HealthPercentage);
+                    HealthChangedEvent?.Invoke(prevHealth, currentHealth);
                 }
             }
 

@@ -1,6 +1,10 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+/* Briefly moves the owner of this boost rapidly in a given direction.
+ * Currently only used by the player.
+ * Can hold a number of charges to be used in quick succession.
+ */
 public class Boost : MonoBehaviour
 {
     public float Duration

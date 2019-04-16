@@ -1,17 +1,14 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+/* Superclass for all complex animations.
+ * Mostly used for death animations and some spawn animations.
+ */
 public abstract class AnimationSequence : MonoBehaviour
 {
-    public bool IsPlaying { get; protected set; } = false;
-
     public Coroutine PlayAnimation()
     {
-        if (!IsPlaying)
-        {
-            return StartCoroutine(AnimationSequenceCR());
-        }
-        return null;
+        return StartCoroutine(AnimationSequenceCR());
     }
 
     public virtual void CancelSequence()

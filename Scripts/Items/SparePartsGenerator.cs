@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 
+/* Used by enemies to generate spare parts (upgrade currency) after death
+ */ 
 [RequireComponent(typeof(Enemy))]
 public class SparePartsGenerator : MonoBehaviour
 {
@@ -10,8 +12,6 @@ public class SparePartsGenerator : MonoBehaviour
         set => valuePerPartRange = value;
     }
 
-    //[SerializeField]
-    //private EnemyType sparePartPoolType;
     [SerializeField]
     private IntRange valuePerPartRange = new IntRange(1, 1);
     [SerializeField]
@@ -46,14 +46,5 @@ public class SparePartsGenerator : MonoBehaviour
                 GetComponent<Rigidbody>().velocity : navAgent.velocity) +
                 spawnDirection * spawnMagnitude;
         }
-    }
-
-    private int AssignValue(SparePart part, int valueRemaining, int numPartsRemaining)
-    {
-        int desiredValue = Mathf.CeilToInt((valueRemaining / (float)numPartsRemaining));
-        int assignValue = Mathf.Min(valueRemaining, desiredValue);
-        part.Value = assignValue;
-        Debug.Log(part.Value);
-        return valueRemaining - assignValue;
     }
 }

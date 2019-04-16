@@ -19,50 +19,66 @@ public class SingleScatterCannon : Weapon
     [SerializeField]
     private List<ParticleSystem> fireParticles;
 
-    private AudioSource source;
+    private AudioSource fireSound;
+    private DamageNumberPool damageNumPool;
 
     protected virtual void Awake()
     {
-        source = GetComponent<AudioSource>();
+        fireSound = GetComponent<AudioSource>();
+        damageNumPool = ObjectPoolManager.Instance.GetDamageNumberPool(
+            ObjectPoolManager.DamagerType.Player);
     }
 
     public override void FireWeapon()
     {
-        base.FireWeapon();
         ApplyAreaDamage();
+        base.FireWeapon();
         foreach (ParticleSystem particles in fireParticles)
         {
             particles.Play();
         }
-        source.PlayOneShot(source.clip);
+        fireSound.PlayOneShot(fireSound.clip);
     }
 
     private void ApplyAreaDamage()
     {
         foreach (Health targetHealth in damageCone.DetectedComponents)
         {
-            if (targetHealth != null)
+            if (targetHealth != null && targetHealth.CurrentHealth != 0)
             {
-                targetHealth.CurrentHealth -= Random.Range(
-                    damageRange.Min, damageRange.Max + 1);
+                Vector3 hitPosition = GetHitPosition(
+                    targetHealth.transform.root);
+                int damage = Mathf.Min(damageRange.RandomRangeValue, 
+                    targetHealth.CurrentHealth);
+                DamageNumber dmgNum = damageNumPool.Get();
+                dmgNum.DamageText.text = damage.ToString();
+                if (hitPosition == null)
+                {
+                    dmgNum.SpawnAtPos(hitPosition + Vector3.up);
+                }
+                else
+                {
+                    dmgNum.SpawnAtPos(targetHealth.transform.position + Vector3.up);
+                }
+                targetHealth.CurrentHealth -= damage;
             }
         }
     }
 
-    private Vector3 GetHitPosition(Vector3 targetPosition)
+    private Vector3 GetHitPosition(Transform target)
     {
-        Ray ray = new Ray(firePoint.position, firePoint.forward);
-        float targetDist = Vector3.Distance(firePoint.position, targetPosition);
+        Ray ray = new Ray(firePoint.position, target.position - firePoint.position );
+        float targetDist = Vector3.Distance(firePoint.position, target.position);
         RaycastHit[] rayHits = Physics.RaycastAll(ray, targetDist);
         IEnumerable<RaycastHit> hits = rayHits.Where(hit => damageCone.DetectableTags.
-        Contains(hit.transform.tag));
+        Contains(hit.transform.tag) && hit.transform.root == target.root);
         return GetClosestHit(hits).point;
     }
 
     private RaycastHit GetClosestHit(IEnumerable<RaycastHit> hits)
     {
         RaycastHit closestHit = new RaycastHit();
-        float closestDist = Mathf.Infinity;
+        float closestDist = 1000;
         foreach (RaycastHit rayHit in hits)
         {
             float hitDist = Vector3.Distance(damageCone.transform.position, rayHit.point);

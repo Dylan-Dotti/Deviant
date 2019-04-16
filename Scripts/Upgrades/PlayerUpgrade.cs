@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+/* Superclass of all player upgrades, represented in the upgrade menu 
+ * as upgrade cards
+ */
 public abstract class PlayerUpgrade : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler
 {
@@ -53,18 +56,16 @@ public abstract class PlayerUpgrade : MonoBehaviour,
 
     [SerializeField]
     private int cost;
-    //[SerializeField]
-    //private int maxNumPurchases;
 
-    //protected string description;
     protected PlayerCharacter player;
 
     private HashSet<StatsDisplay> statsDisplays;
     private Text descriptionText;
     private Text costText;
+    private Text tierText;
     private Button purchaseButton;
     private AudioSource purchaseSound;
-    private float purchaseCooldown = 0.25f;
+    private float purchaseCooldown = 0.5f;
     private float timeSinceLastPurchase;
 
     private Color32 originalCostTextColor;
@@ -78,12 +79,14 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         descriptionText = transform.Find("Description").GetComponent<Text>();
         costText = transform.Find("Purchase Bar").transform
             .Find("Cost").transform.Find("Cost Text").GetComponent<Text>();
+        tierText = transform.Find("Tier Number").GetComponent<Text>();
         originalCostTextColor = costText.color;
         purchaseButton = GetComponentInChildren<Button>();
         purchaseButton.onClick.AddListener(AttemptApplyUpgrade);
         purchaseSound = GetComponent<AudioSource>();
         player = PlayerCharacter.Instance;
         statsDisplays = new HashSet<StatsDisplay>();
+        UpdateTierText();
     }
 
     protected virtual void Update()
@@ -116,7 +119,8 @@ public abstract class PlayerUpgrade : MonoBehaviour,
     public virtual void ApplyUpgrade()
     {
         player.NumSpareParts -= Cost;
-        NumTimesPurchased += 1;
+        NumTimesPurchased++;
+        UpdateTierText();
         if (NumTimesPurchased >= MaxNumPurchases)
         {
             FadeOut();
@@ -126,6 +130,7 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         timeSinceLastPurchase = 0;
     }
 
+    /* Add stats display to be changed on mouseover */
     public bool AddStatsDisplay(StatsDisplay display)
     {
         if (statsDisplays.Add(display))
@@ -147,6 +152,7 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         return false;
     }
 
+    /* Set the new stats preview elements active on mouseover */
     public void SetNewStatsActive(bool active)
     {
         foreach (StatsDisplay statsDisplay in statsDisplays)
@@ -167,6 +173,7 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         StartCoroutine(FadeAlphaRecursive(255, 255f / 2.25f, 0.33f));
     }
 
+    /* Update the player stats after a purchase */
     public abstract void UpdateStatsDisplays();
 
     private void UpdateCostText()
@@ -184,6 +191,24 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         }
     }
 
+    /* Updates the tier number after purchase */
+    private void UpdateTierText()
+    {
+        if (tierText != null)
+        {
+            if (MaxNumPurchases == int.MaxValue)
+            {
+                tierText.text = "Tier " + NumTimesPurchased;
+            }
+            else
+            {
+                tierText.text = string.Format("Tier {0}/{1}",
+                    NumTimesPurchased, MaxNumPurchases);
+            }
+        }
+    }
+
+    /* Fades out when the purchase limit is reached */
     private IEnumerator FadeAlphaRecursive(float startAlpha, float endAlpha, float duration)
     {
         while (isFading)

@@ -1,8 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
+/* Manages all things related to player controls, including 
+ * firing weapons and moving the player character in the world. 
+ */
 public class PlayerController : MonoBehaviour
 {
+    public IEnumerable<Weapon> Weapons => playerWeapons;
+    public Weapon EquippedWeapon { get; private set; }
+
+    public UnityAction<Weapon> WeaponEquippedEvent;
+
+    // switches for enabling/disabling different aspects of control
     public bool PlayerInputEnabled { get; set; } = true;
     public bool MovementEnabled { get; set; } = true;
     public bool MouseRotateEnabled { get; set; } = true;
@@ -55,7 +65,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private LerpRotationToTarget rotator;
 
-    private Weapon equippedWeapon;
     private Rigidbody rBody;
 
     private void Awake()
@@ -65,15 +74,21 @@ public class PlayerController : MonoBehaviour
         vModifiers = new HashSet<VelocityModifier>();
         AddVelocityModifier(playerVelocityModifier);
         Application.targetFrameRate = 60;
+    }
+
+    private void Start()
+    {
         foreach (Weapon weapon in playerWeapons)
         {
             if (weapon.gameObject.activeSelf)
             {
                 EquipWeapon(weapon);
+                break;
             }
         }
     }
 
+    // check for player input each frame
     private void Update()
     {
         if (PlayerInputEnabled)
@@ -97,6 +112,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Movements involving physics should be placed in FixedUpdate 
     private void FixedUpdate()
     {
         ApplyDrag();
@@ -158,7 +174,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //optimize this
+    /* Due to using velocity modifiers instead of the physics functions 
+     * for movement, drag needs to be simulated manually 
+     */
     private void ApplyDrag()
     {
         Vector3 playerVelocity = MoveVelocity;
@@ -195,46 +213,45 @@ public class PlayerController : MonoBehaviour
     private void RotateWeapon()
     {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        equippedWeapon.TurnToFace(mousePos);
+        EquippedWeapon.TurnToFace(mousePos);
     }
 
     private void FireWeapon()
     {
         if (Input.GetMouseButtonUp(0))
         {
-            equippedWeapon.CancelFireWeapon();
+            EquippedWeapon.CancelFireWeapon();
         }
         else if (Input.GetMouseButton(0))
         {
-            equippedWeapon.AttemptFireWeapon();
+            EquippedWeapon.AttemptFireWeapon();
         }
     }
 
     private void SwitchWeapons()
     {
-        Weapon newWeapon = null;
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            newWeapon = playerWeapons[0];
+            EquipWeapon(playerWeapons[0]);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            newWeapon = playerWeapons[1];
+            EquipWeapon(playerWeapons[1]);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            newWeapon = playerWeapons[2];
+            EquipWeapon(playerWeapons[2]);
         }
-        EquipWeapon(newWeapon);
     }
 
     private void EquipWeapon(Weapon newWeapon)
     {
-        if (newWeapon != null && equippedWeapon != newWeapon)
+        if (EquippedWeapon != newWeapon)
         {
-            equippedWeapon?.gameObject.SetActive(false);
-            equippedWeapon = newWeapon;
-            equippedWeapon.gameObject.SetActive(true);
+            EquippedWeapon?.gameObject.SetActive(false);
+            EquippedWeapon = newWeapon;
+            EquippedWeapon.gameObject.SetActive(true);
+            WeaponEquippedEvent?.Invoke(newWeapon);
         }
     }
 }

@@ -12,7 +12,7 @@ public class GameOverPanel : MonoBehaviour
     {
         alphaLerper = GetComponent<RecursiveUIAlphaLerper>();
         PlayerCharacter.Instance.PlayerDeathEvent += 
-            c => StartCoroutine(DelayedActivation());
+            () => StartCoroutine(DelayedActivation());
     }
 
     private void OnEnable()

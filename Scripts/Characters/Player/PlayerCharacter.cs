@@ -1,9 +1,18 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 
+/* Representation of the player in the world.
+ * Currently implemented as a Unity singleton,
+ * though this will cause problems if I ever 
+ * convert to more than one player
+ * 
+ * Contains PlayerController, keeps track of 
+ * currency amount (spare parts), fires death 
+ * event
+ */
 public sealed class PlayerCharacter : Character
 {
-    public CharacterDelegate PlayerSpawnEvent;
-    public CharacterDelegate PlayerDeathEvent;
+    public UnityAction PlayerDeathEvent;
 
     public static PlayerCharacter Instance { get; private set; }
 
@@ -17,10 +26,10 @@ public sealed class PlayerCharacter : Character
     }
 
     [SerializeField]
-    private AudioSource engineSource;
+    private AudioSource engineSound;
     [SerializeField]
     private int numSpareParts;
-    private PlayerDeathSequence deathSequence;
+    private PlayerDeathAnimation deathAnimation;
 
     protected override void Awake()
     {
@@ -29,26 +38,25 @@ public sealed class PlayerCharacter : Character
         {
             Instance = this;
             Controller = GetComponent<PlayerController>();
-            deathSequence = GetComponent<PlayerDeathSequence>();
+            deathAnimation = GetComponent<PlayerDeathAnimation>();
         }
     }
 
     private void Start()
     {
-        PlayerSpawnEvent?.Invoke(this);
         IsActiveInWorld = true;
     }
 
     private void OnEnable()
     {
         Controller.enabled = true;
-        engineSource.Play();
+        engineSound.Play();
     }
 
     private void OnDisable()
     {
         Controller.enabled = false;
-        engineSource.Stop();
+        engineSound.Stop();
     }
 
     public override void Die()
@@ -56,10 +64,10 @@ public sealed class PlayerCharacter : Character
         Controller.PlayerInputEnabled = false;
         Controller.ResetMovement();
         Controller.enabled = false;
-        engineSource.Stop();
+        engineSound.Stop();
         GetComponent<Rigidbody>().velocity = Vector3.zero;
         IsActiveInWorld = false;
-        PlayerDeathEvent?.Invoke(this);
-        deathSequence.PlayAnimation();
+        PlayerDeathEvent?.Invoke();
+        deathAnimation.PlayAnimation();
     }
 }

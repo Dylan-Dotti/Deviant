@@ -2,6 +2,14 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+/* The red square ones.
+ * They wander around and occasionally fire either a single laser 
+ * or all four of their lasers. When firing a single laser, they 
+ * will slowly rotate toward the player. This attack also requires 
+ * the player to be within range. When firing all four, they will 
+ * rotate in a randomly selected direction. The range on this attack 
+ * is infinite.
+ */
 public class LaserCube : Enemy
 {
     public override EnemyType EType => EnemyType.LaserCube;
@@ -13,8 +21,7 @@ public class LaserCube : Enemy
     [SerializeField]
     private float attackCooldown = 12.5f;
     [SerializeField]
-    private FloatRange quadLaserSequenceCooldown =
-        new FloatRange(35, 40);
+    private FloatRange quadLaserSequenceCooldown = new FloatRange(35, 40);
     [SerializeField]
     private LaserCubeQuadLaser mainQuadLaser;
     [SerializeField]
@@ -39,6 +46,9 @@ public class LaserCube : Enemy
         playerTransform = PlayerCharacter.Instance.transform;
     }
 
+    /* Activate either single laser sequence or quad laser sequence 
+     * if they are off cooldown
+     */
     private void Update()
     {
         mainQuadLaser.TurnToFace(Vector3.forward);
@@ -79,9 +89,9 @@ public class LaserCube : Enemy
         deathAnimation.PlayAnimation();
     }
 
-    protected override void OnPlayerDeath(Character c)
+    protected override void OnPlayerDeath()
     {
-        base.OnPlayerDeath(c);
+        base.OnPlayerDeath();
         StopAllCoroutines();
         CancelWeapon();
     }
@@ -96,6 +106,7 @@ public class LaserCube : Enemy
             oldMin * dmgScalar), Mathf.RoundToInt(oldMax * dmgScalar));
     }
 
+    // Cancel the currently active weapon
     private void CancelWeapon()
     {
         if (mainQuadLaser.gameObject.activeInHierarchy)
@@ -129,6 +140,7 @@ public class LaserCube : Enemy
         }
     }
 
+    // Fires a single laser for several seconds, and rotates toward the player
     private IEnumerator SingleLaserSequenceCR()
     {
         rotateBehavior.enabled = false;
@@ -179,6 +191,9 @@ public class LaserCube : Enemy
         mode = CombatMode.Idle;
     }
 
+    /* Periodically attempts to start the quad laser 
+     * sequence if it is off cooldown
+     */
     private IEnumerator PeriodicQuadLaserSequence()
     {
         while (true)
@@ -193,6 +208,9 @@ public class LaserCube : Enemy
         }
     }
 
+    /* Fires all four lasers for several seconds while rotating in a 
+     * randomly selected direction
+     */
     private IEnumerator QuadLaserSequenceCR()
     {
         rotateBehavior.enabled = false;
@@ -206,7 +224,6 @@ public class LaserCube : Enemy
         StartCoroutine(SpinupSequence(5, 5));
         //warning lasers
         yield return StartCoroutine(QuadWarningLaserSequence());
-        //yield return new WaitForSeconds(5);
         //main lasers
         float lowWidth = 0f;
         float highWidth = 0.2f;
@@ -228,6 +245,9 @@ public class LaserCube : Enemy
         mode = CombatMode.Idle;
     }
 
+    /* Accelerates to spin around for several seconds. 
+     * used for the quad laser sequence
+     */
     private IEnumerator SpinupSequence(float spinupDuration, float holdDuration)
     {
         int directionModifier = Random.value > 0.5f ? 1 : -1;
@@ -253,6 +273,7 @@ public class LaserCube : Enemy
         }
     }
 
+    // Fires a warning laser to alert the player of incoming attack
     private IEnumerator SingleWarningLaserSequence(SingleLaser warningLaser)
     {
         mainQuadLaser.gameObject.SetActive(false);
@@ -279,6 +300,7 @@ public class LaserCube : Enemy
         yield return new WaitForSeconds(0.4f);
     }
 
+    // Fires all four warning lasers to alert the player of incoming attack
     private IEnumerator QuadWarningLaserSequence()
     {
         mainQuadLaser.gameObject.SetActive(false);
@@ -305,6 +327,9 @@ public class LaserCube : Enemy
         yield return new WaitForSeconds(0.4f);
     }
 
+    /* Slowly rotates the LaserCube toward the player. 
+     * Used by the single laser attack
+     */
     private IEnumerator TrackPlayerOverDuration(Transform forwardTransform,
         float angularSpeedDegrees, float duration)
     {

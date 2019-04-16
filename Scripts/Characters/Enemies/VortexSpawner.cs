@@ -2,6 +2,10 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+/* The purple ones.
+ * They wander around, shoot at the player, and 
+ * occasionally fire a Vortex somewhere
+ */
 public class VortexSpawner : Enemy
 {
     public override EnemyType EType => EnemyType.VortexSpawner;
@@ -13,16 +17,17 @@ public class VortexSpawner : Enemy
     [SerializeField]
     private VortexLauncher vortexLauncher;
 
-    private VortexSpawnerDeathSequence deathSequence;
+    private VortexSpawnerDeathAnimation deathAnimation;
     private Transform playerTransform;
 
     protected override void Awake()
     {
         base.Awake();
-        deathSequence = GetComponent<VortexSpawnerDeathSequence>();
+        deathAnimation = GetComponent<VortexSpawnerDeathAnimation>();
         playerTransform = PlayerCharacter.Instance.transform;
     }
 
+    // fire at the player when close, launch a vortex if off cooldown
     private void Update()
     {
         if (Vector3.Distance(transform.position,
@@ -36,22 +41,19 @@ public class VortexSpawner : Enemy
 
     protected override void ApplyScalars()
     {
-        Debug.Log(EType.ToString());
         base.ApplyScalars();
         int oldMin = blaster.ProjectileDmgRange.Min;
         int oldMax = blaster.ProjectileDmgRange.Max;
-        Debug.Log(oldMin + " " + oldMax);
         float dmgScalar = EnemyStrengthScalars.GetDamageScalar(EType);
         blaster.ProjectileDmgRange = new IntRange(Mathf.RoundToInt(
             oldMin * dmgScalar), Mathf.RoundToInt(oldMax * dmgScalar));
-        Debug.Log(blaster.ProjectileDmgRange.Min + " " + blaster.ProjectileDmgRange.Max);
     }
 
     public override void Die()
     {
         EnemyDeathEvent?.Invoke(this);
         enabled = false;
-        deathSequence.PlayAnimation();
+        deathAnimation.PlayAnimation();
     }
 
     protected override IEnumerator SpawnSequence()

@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Spawns the specified enemy type at specified times.
+ * Currently only used for spawners that spawn a single enemy type
+ * (These spawners could probably be named better)
+ */
 public class EnemySpawnerPeriodic : EnemySpawner
 {
     [System.Serializable]

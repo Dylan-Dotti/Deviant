@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+/* Peroidically spawned by VortexSpawners
+ */
 [RequireComponent(typeof(PlayerMagnet))]
 public class Vortex : Enemy
 {
@@ -33,7 +35,7 @@ public class Vortex : Enemy
         magnet.enabled = true;
     }
 
-    protected virtual void OnDisable()
+    protected override void OnDisable()
     {
         base.OnDisable();
         magnet.enabled = false;
@@ -49,6 +51,7 @@ public class Vortex : Enemy
         yield return null;
     }
 
+    // Move to given spawn position
     private IEnumerator LerpToPosition(Vector3 targetPos)
     {
         targetPos = new Vector3(targetPos.x, transform.position.y, targetPos.z);

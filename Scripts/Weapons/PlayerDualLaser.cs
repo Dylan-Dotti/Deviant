@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Player laser class.
+ * Uses a LaserTargetter to lock on to enemies
+ */
 public class PlayerDualLaser : MultiLaser
 {
     public float FiringMoveSpeedPercentage
@@ -21,18 +24,18 @@ public class PlayerDualLaser : MultiLaser
     [SerializeField]
     private AudioSource firingSound;
 
-    private Vector3 targetPosition;
     private PlayerController pController;
     private Coroutine fireSequenceRoutine;
+    private Coroutine fireEventRoutine;
 
     private void Awake()
     {
         pController = PlayerCharacter.Instance.Controller;
+        Lasers.ForEach(l => l.WeaponFiredEvent += () => InvokeWeaponFiredEvent());
     }
 
     private void OnEnable()
     {
-        //WaveGenerator.Instance.wave
         targetter.enabled = true;
         targetter.TargetLostEvent += OnTargetterTargetLost;
     }
@@ -71,6 +74,10 @@ public class PlayerDualLaser : MultiLaser
             {
                 StopCoroutine(fireSequenceRoutine);
             }
+            if (fireEventRoutine != null)
+            {
+                StopCoroutine(fireEventRoutine);
+            }
             chargingParticles.ForEach(p => p.Stop());
             chargingSound.Stop();
             firingSound.Stop();
@@ -84,7 +91,6 @@ public class PlayerDualLaser : MultiLaser
 
     public override void TurnToFace(Vector3 targetPos)
     {
-        targetPosition = targetPos;
         base.TurnToFace(targetPos);
     }
 
@@ -93,6 +99,7 @@ public class PlayerDualLaser : MultiLaser
         CancelFireWeapon();
     }
 
+    // Fires at locked-on enemy as long as fire button is held
     private IEnumerator FireSequence()
     {
         chargingParticles.ForEach(p => p.Play());
@@ -108,12 +115,27 @@ public class PlayerDualLaser : MultiLaser
         chargingSound.Stop();
         TurnToFace(targetter.TargetTransform.position);
         base.FireWeapon();
-        firingSound.Play();
+        if (IsFiring)
+        {
+            firingSound.Play();
+            fireEventRoutine = StartCoroutine(FireEventCR());
+        }
         while (IsFiring)
         {
             TurnToFace(targetter.TargetTransform.position);
-            pController.Rotator.TargetPosition = targetPosition;
+            pController.Rotator.TargetPosition = 
+                targetter.TargetTransform.position;
             yield return null;
+        }
+    }
+
+    private IEnumerator FireEventCR()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.5f);
+            InvokeWeaponFiredEvent();
+            InvokeWeaponFiredEvent();
         }
     }
 }

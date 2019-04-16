@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Spawns random enemies periodically
+ * The number of enemies spawned each time is also probabilistic
+ */
 public class EnemySpawnerRandom : EnemySpawner
 {
     [System.Serializable]
@@ -44,7 +47,7 @@ public class EnemySpawnerRandom : EnemySpawner
 
     public override void StartSpawning()
     {
-        DissipateAfterSeconds(30);
+        DissipateAfterSeconds(35);
         StartCoroutine(SpawnSequenceCR());
     }
 
@@ -63,7 +66,7 @@ public class EnemySpawnerRandom : EnemySpawner
                     yield return null;
                 }
             }
-            yield return new WaitForSeconds(Random.Range(7.5f, 8.5f));
+            yield return new WaitForSeconds(Random.Range(8.5f, 10f));
         }
     }
 }

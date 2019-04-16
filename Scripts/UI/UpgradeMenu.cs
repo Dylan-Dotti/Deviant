@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/* Controls the upgrade menu, where the player 
+ * can purchase upgrades after each wave
+ */
 public class UpgradeMenu : MonoBehaviour
 {
     public static UpgradeMenu Instance { get; private set; }
@@ -37,14 +40,15 @@ public class UpgradeMenu : MonoBehaviour
         menus.ForEach(m => m.SetActive(false));
     }
 
-    private void Update()
+    //for testing purposes
+    /*private void Update()
     {
         if ((Input.GetKey(KeyCode.LeftShift) || 
             Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.R))
         {
             enabled = false;
         }
-    }
+    }*/
 
     public void StartNextWave()
     {

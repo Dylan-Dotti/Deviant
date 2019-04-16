@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
+/* Maintains the current scalars for enemy health and damage, 
+ * based on the current wave. Updates after the end of each wave, 
+ * and is used by enemies on spawn to update their health and damage.
+ */
 public static class EnemyStrengthScalars
 {
     private static Dictionary<EnemyType, float> healthScalars;
@@ -41,13 +44,13 @@ public static class EnemyStrengthScalars
     {
         foreach (EnemyType eType in GetEnemyTypes())
         {
-            healthScalars[eType] = 1 + (waveNum * 0.25f);
-            damageScalars[eType] = 1 + (waveNum * 0.25f);
+            healthScalars[eType] = 1 + (waveNum * 0.3f);
+            damageScalars[eType] = 1 + (waveNum * 0.3f);
         }
 
     }
 
-    private static void OnPlayerDeath(Character c)
+    private static void OnPlayerDeath()
     {
         foreach (EnemyType eType in GetEnemyTypes())
         {

@@ -59,7 +59,6 @@ public class BackgroundMusic : MonoBehaviour
     [Header("Pause Settings")]
     [SerializeField][Range(0f, 1f)]
     private float pauseVolumeMultiplier = 0.5f;
-    //remove?
     [SerializeField]
     private float pauseVolumeFadeDuration = 1f;
 
@@ -73,8 +72,8 @@ public class BackgroundMusic : MonoBehaviour
         volumeMultipliers = new List<int>();
         musicSource = GetComponent<AudioSource>();
         defaultVolume = musicSource.volume;
-        PauseMenu.GamePausedEvent += OnGamePause;
-        PauseMenu.GameResumedEvent += OnGameResume;
+        PauseMenu.Instance.GamePausedEvent += OnGamePause;
+        PauseMenu.Instance.GameResumedEvent += OnGameResume;
     }
 
     private void Start()

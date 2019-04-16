@@ -2,6 +2,8 @@
 
 public class EnhancedBoostDrive : PlayerUpgrade
 {
+    public override int MaxNumPurchases => 5;
+
     [SerializeField]
     private float durationPercentageIncrease;
     [SerializeField]

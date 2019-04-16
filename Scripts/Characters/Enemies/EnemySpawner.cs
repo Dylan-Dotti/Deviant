@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+/* Sometimes called a portal
+ * Abstract superclass for all EnemySpawner types
+ * Spawns enemies at specified times
+ * Spawning is handled by the EnemyFactory
+ */
 public abstract class EnemySpawner : MonoBehaviour
 {
     [System.Serializable]
@@ -81,6 +86,7 @@ public abstract class EnemySpawner : MonoBehaviour
         return true;
     }
 
+    /* Spawn the given enemy type and launch it in a mostly random direction */
     public void SpawnAndLaunchEnemy(EnemyType eType)
     {
         Vector3 spawnDirection = GetIdealRandomLaunchDirection(20, 20);
@@ -97,12 +103,15 @@ public abstract class EnemySpawner : MonoBehaviour
         enemyRb.AddForce(launchVelocity, ForceMode.VelocityChange);
     }
 
-    private void OnPlayerDeath(Character c)
+    private void OnPlayerDeath()
     {
         StopAllCoroutines();
         DissipateAfterSeconds(Random.Range(10, 20));
     }
 
+    /* Chooses an ideal random spawn direction from a selection 
+     * based on the number of raycast collisions
+     */ 
     protected Vector3 GetIdealRandomLaunchDirection(int numRandomSamples, int collisionCheckRange)
     {
         Dictionary<Ray, int> rayCollisionCounts = new Dictionary<Ray, int>();
@@ -174,6 +183,7 @@ public abstract class EnemySpawner : MonoBehaviour
             Random.Range(-1f, 1f)).normalized;
     }
 
+    // Despawn after the specified number of seconds
     private IEnumerator DissipateAfterSecondsCR(float seconds)
     {
         yield return new WaitForSeconds(seconds);

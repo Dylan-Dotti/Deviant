@@ -5,9 +5,9 @@ public class EnhancedThrusters : PlayerUpgrade
     public override int MaxNumPurchases => 5;
 
     [SerializeField]
-    private float accelPercentageIncrease = 0.05f;
+    private float accelPercentageIncrease = 0.02f;
     [SerializeField]
-    private float speedPercentageIncrease = 0.05f;
+    private float speedPercentageIncrease = 0.02f;
     [SerializeField]
     private StatsDisplay accelerationDisplay;
     [SerializeField]

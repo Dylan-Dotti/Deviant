@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+/* Superclass for all weapons
+ */
 public abstract class Weapon : MonoBehaviour
 {
     public delegate void WeaponDelegate();
@@ -38,10 +40,11 @@ public abstract class Weapon : MonoBehaviour
 
     public virtual void FireWeapon()
     {
-        WeaponFiredEvent?.Invoke();
+        InvokeWeaponFiredEvent();
         TimeSinceLastFire = 0;
     }
 
+    // Not used by most weapons, but needed for generality
     public virtual void CancelFireWeapon()
     {
 
@@ -55,5 +58,11 @@ public abstract class Weapon : MonoBehaviour
     public virtual void ResetOrientation()
     {
         transform.localRotation = originalOrientation;
+    }
+
+    // Event needs to be placed in a function to be called from subclass
+    protected void InvokeWeaponFiredEvent()
+    {
+        WeaponFiredEvent?.Invoke();
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/* Manages health bar percentage and changes color 
+ * based on health percentage.
+ */
 public class HealthBar : MonoBehaviour
 {
     [Header("Bar")]
@@ -40,14 +42,10 @@ public class HealthBar : MonoBehaviour
     private float fadeDelay = 5f;
 
     private float timeSinceLastChange;
-    //private float foregroundStartAlpha;
-    //private float backgroundStartAlpha;
     
     private void Start()
     {
         timeSinceLastChange = fadeDelay;
-        //foregroundStartAlpha = healthBarForeground.color.a;
-        //backgroundStartAlpha = healthBarBackground.color.a;
         if (fadeEnabled)
         {
             healthBarForeground.color = new Color(healthBarForeground.color.r, 
@@ -58,7 +56,6 @@ public class HealthBar : MonoBehaviour
             yellowColor = new Color(yellowColor.r, yellowColor.g, yellowColor.b, 0);
             redColor = new Color(redColor.r, redColor.g, redColor.b, 0);
         }
-        //enabled = false;
     }
 
     private void LateUpdate()
@@ -66,7 +63,6 @@ public class HealthBar : MonoBehaviour
         if (timeSinceLastChange > fadeDelay && fadeEnabled)
         {
             FadeOut();
-            //enabled = false;
         }
         timeSinceLastChange += Time.deltaTime;
     }
