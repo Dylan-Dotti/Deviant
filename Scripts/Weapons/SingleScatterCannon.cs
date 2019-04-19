@@ -10,6 +10,31 @@ public class SingleScatterCannon : Weapon
         set => damageRange = value;
     }
 
+    public float Range
+    {
+        get => damageCone.transform.localScale.y;
+        set
+        {
+            Vector3 scale = damageCone.transform.localScale;
+            damageCone.transform.localScale = new Vector3(
+              scale.x, value, scale.z);
+            Vector3 position = damageCone.transform.localPosition;
+            damageCone.transform.localPosition = new Vector3(
+                position.x, position.y, value - 0.15f);
+        }
+    }
+
+    public float Spread
+    {
+        get => damageCone.transform.localScale.x;
+        set
+        {
+            Vector3 scale = damageCone.transform.localScale;
+            damageCone.transform.localScale = new Vector3(
+                value, scale.y, scale.z);
+        }
+    }
+
     [SerializeField]
     private IntRange damageRange = new IntRange(4, 6);
     [SerializeField]

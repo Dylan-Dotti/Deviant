@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class BlasterFireRate : PlayerUpgrade
+public class BlasterFireRate : WeaponUpgrade
 {
     private float ShotsPerSecond
     {

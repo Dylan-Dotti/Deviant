@@ -186,6 +186,7 @@ public class RangedDrone : Enemy
 
     protected override IEnumerator SpawnSequence()
     {
+        rotator.TargetPosition = playerTransform.position;
         yield return new WaitForSeconds(1.5f);
         navAgent.enabled = true;
         StartCoroutine(SetMoveTargetPeriodic());

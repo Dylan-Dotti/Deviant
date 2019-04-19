@@ -49,7 +49,7 @@ public abstract class PlayerUpgrade : MonoBehaviour,
 
     public virtual bool Purchasable
     {
-        get => NumTimesPurchased < MaxNumPurchases;
+        get => NumTimesPurchased < MaxNumPurchases && Cost != 0;
     }
 
     public int NumTimesPurchased { get; private set; }
@@ -98,12 +98,12 @@ public abstract class PlayerUpgrade : MonoBehaviour,
         UpdateStatsDisplays();
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public virtual void OnPointerEnter(PointerEventData eventData)
     {
         SetNewStatsActive(Purchasable);
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public virtual void OnPointerExit(PointerEventData eventData)
     {
         SetNewStatsActive(false);
     }

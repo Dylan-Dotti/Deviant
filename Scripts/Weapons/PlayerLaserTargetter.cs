@@ -18,6 +18,7 @@ public class PlayerLaserTargetter : MonoBehaviour
 
     private List<Transform> enemyTransforms;
     private ParticleSystem targetParticles;
+    private Weapon playerLaser;
     private Camera mainCamera;
 
     private void Awake()
@@ -35,7 +36,7 @@ public class PlayerLaserTargetter : MonoBehaviour
         if (WaveGenerator.Instance != null)
         {
             WaveGenerator.Instance.WaveEndedEvent += i => enabled = false;
-            WaveGenerator.Instance.WaveStartedEvent += i => enabled = true;
+            WaveGenerator.Instance.WaveStartedEvent += i => enabled = playerLaser.enabled;
         }
     }
 

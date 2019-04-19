@@ -84,7 +84,7 @@ public class WaveGenerator : MonoBehaviour
         StopAllCoroutines();
         currentWaveCount++;
         currentWave = GenerateRandomWave(5, 2);
-        StartCoroutine(SpawnWaveCR(currentWave, new FloatRange(17.5f, 20f)));
+        StartCoroutine(SpawnWaveCR(currentWave, new FloatRange(18.5f, 23.5f)));
         WaveStartedEvent?.Invoke(currentWaveCount);
     }
 
@@ -151,7 +151,7 @@ public class WaveGenerator : MonoBehaviour
         int numSpawners = spawnerQueue.Count;
         EnemySpawner nextSpawner = SpawnPortalPresetLocation(spawnerQueue.Dequeue());
         nextSpawner.EnemySpawnerDissipateEvent += () => numSpawners--;
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(Random.Range(7f, 12f));
         while (spawnerQueue.Count > 0)
         {
             nextSpawner = SpawnPortalPresetLocation(spawnerQueue.Dequeue());

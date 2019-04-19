@@ -113,9 +113,17 @@ public class LaserDrone : Enemy
 
     protected override IEnumerator SpawnSequence()
     {
-        yield return new WaitForSeconds(1.5f);
-        navAgent.enabled = true;
         rotator.enabled = true;
+        rotator.TargetPosition = playerTransform.position;
+        //yield return new WaitForSeconds(0.1f);
+        //Vector3 velocity = GetComponentInChildren<Rigidbody>().velocity;
+        //Debug.Log(velocity);
+        //float angle = Mathf.Rad2Deg * Mathf.Atan2(velocity.z, velocity.x);
+        //Debug.Log(angle);
+        //transform.rotation = Quaternion.Euler(transform.eulerAngles.x,
+        //    -angle, transform.eulerAngles.y);
+        yield return new WaitForSeconds(1f);
+        navAgent.enabled = true;
         StartCoroutine(SetDestinationPeriodic());
         enabled = PlayerCharacter.Instance.IsActiveInWorld;
     }

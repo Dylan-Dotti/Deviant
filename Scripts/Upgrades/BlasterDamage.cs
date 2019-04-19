@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class BlasterDamage : PlayerUpgrade
+public class BlasterDamage : WeaponUpgrade
 {
     public int MinDamage { get => leftPlayerBlaster.ProjectileDmgRange.Min; }
     public int MaxDamage { get => leftPlayerBlaster.ProjectileDmgRange.Max; }
@@ -48,12 +48,12 @@ public class BlasterDamage : PlayerUpgrade
         blasterDamageDisplay.CurrentStats.text = currentMin + " - " + currentMax;
         blasterDamageDisplay.NewStats.text = nextDamage.Min + " - " + nextDamage.Max;
         //DPS
-        dmgPerSecondDisplay.CurrentStats.text =
-            (currentMin / playerBlaster.FireRate) + " - " +
-            (currentMax / playerBlaster.FireRate);
-        dmgPerSecondDisplay.NewStats.text =
-            (nextDamage.Min / playerBlaster.FireRate) + " - " +
-            (nextDamage.Max / playerBlaster.FireRate);
+        dmgPerSecondDisplay.CurrentStats.text = string.Format(
+            "{0} - {1}", FloatRounder.Round(currentMin / playerBlaster.FireRate, 2),
+            FloatRounder.Round(currentMax / playerBlaster.FireRate, 2));
+        dmgPerSecondDisplay.NewStats.text = string.Format(
+            "{0} - {1}", FloatRounder.Round(nextDamage.Min / playerBlaster.FireRate, 2),
+            FloatRounder.Round(nextDamage.Max / playerBlaster.FireRate, 2));
     }
 
     private IntRange getNextDamage()

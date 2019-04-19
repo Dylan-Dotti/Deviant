@@ -13,6 +13,12 @@ public class PlayerDualLaser : MultiLaser
         set => firingMoveSpeedPercentage = Mathf.Clamp01(value);
     }
 
+    public FloatRange DamagePerSecond => new FloatRange(
+        LaserDamagePerTick.Min * TicksPerSecond, 
+        LaserDamagePerTick.Max * TicksPerSecond);
+
+    public float TicksPerSecond => 4;
+
     [SerializeField][Range(0, 1)]
     private float firingMoveSpeedPercentage = 0.6f;
     [SerializeField]
